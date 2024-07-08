@@ -53,6 +53,7 @@ const VerificationPage = () => {
       setApiError(null)
       try {
         const result = await verify(values)
+        console.log('result', result)
         if (result.status === 200) {
           setSuccessMessage('verification successful.')
           setTimeout(() => {

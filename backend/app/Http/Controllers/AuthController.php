@@ -208,18 +208,17 @@ class AuthController extends Controller
       return response()->json(["message" => 'Verification code is incorrect'], 401);
     }
 
-    DB::beginTransaction();
 
     try {
-      $user = User::where('id', $user->id);
+      DB::beginTransaction();
+      $user = User::where('id', $user->id)->first();
       $user->update([
         'email_verified_at' => $time,
         'verification_code' => null, // Optionally clear the verification code after successful verification
         'verification_code_expired' => null // Optionally clear the expiration time
       ]);
-
       DB::commit();
-
+      return response()->Json(['user' => $user, 'time' => $time]);
       return response()->json(["message" => 'Email verified successfully'], 200);
     } catch (\Exception $e) {
       DB::rollBack();

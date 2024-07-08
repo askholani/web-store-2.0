@@ -14,5 +14,5 @@ Route::middleware('checkAuth')->group(function () {
   Route::get('/profile', [AuthController::class, 'profile']);
   Route::get('/resend', [AuthController::class, 'resend']);
   Route::post('/me', [AuthController::class, 'me']);
-  Route::post('/verify', [AuthController::class, 'me']);
+  Route::post('/verify', [AuthController::class, 'verify']);
 });

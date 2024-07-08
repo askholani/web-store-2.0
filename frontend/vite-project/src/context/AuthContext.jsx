@@ -33,8 +33,11 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation()
   const currentUrl = location.pathname
   if (user && currentUrl === '/login') {
-    const path = user.emal_verified_at ? '/profile' : '/verification'
-    navigate(path)
+    console.log('user', user)
+    const path = user.emal_verified_at !== null ? '/profile' : '/verification'
+    setTimeout(() => {
+      navigate(path)
+    }, 0)
   }
 
   const login = async (email, password) => {
@@ -67,10 +70,10 @@ export const AuthProvider = ({ children }) => {
 
   const verify = async (code) => {
     const combineCode = Object.values(code).join('')
-    console.log(combineCode)
-    const response = await axiosInstance.post('/verify', {
-      combineCode,
-    })
+    const data = {
+      code: combineCode,
+    }
+    const response = await axiosInstance.post('/verify', data)
     return response
   }
 

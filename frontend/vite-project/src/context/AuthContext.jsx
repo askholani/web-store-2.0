@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import { createContext, useState, useEffect } from 'react'
-import axiosInstance from '../api/axiosAuth'
+import axiosInstance, { axiosInstanceFile } from '../api/axiosAuth'
 import { useLocation } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
 
@@ -77,9 +77,74 @@ export const AuthProvider = ({ children }) => {
     return response
   }
 
+  const completeProfile = async (name, phone, gender, photo) => {
+    const formData = new FormData()
+    formData.append('name', name)
+    formData.append('phone', phone)
+    formData.append('gender', gender)
+    formData.append('photo', photo)
+
+    const response = await axiosInstanceFile.post('/profile/complete', formData)
+    console.log('response', response)
+
+    return response
+  }
+  // const completeProfile = async (name, phone, gender, photo) => {
+  //   const formData = new FormData()
+
+  //   console.log('photo:', photo)
+  //   console.log('name:', name)
+  //   console.log('phone:', phone)
+  //   console.log('gender:', gender)
+
+  //   formData.append('name', name)
+  //   formData.append('phone', phone)
+  //   formData.append('gender', gender)
+  //   formData.append('photo', photo)
+
+  //   // Log all entries in the FormData object
+  //   for (let [key, value] of formData.entries()) {
+  //     console.log(`${key}: ${value}`)
+  //   }
+
+  //   try {
+  //     const token = localStorage.getItem('token')
+  //     const response = await fetch(
+  //       'http://127.0.0.1:8000/api/profile/complete',
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           // No need to set 'Content-Type' header to multipart/form-data
+  //           // It will be set automatically by the browser
+  //         },
+  //         body: formData,
+  //       },
+  //     )
+
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! Status: ${response.status}`)
+  //     }
+
+  //     const responseData = await response.json()
+  //     console.log('responseData', responseData)
+  //   } catch (error) {
+  //     console.error('Error completing profile:', error)
+  //   }
+  // }
+
   return (
     <AuthContext.Provider
-      value={{ user, login, register, logout, resendCode, isPending, verify }}>
+      value={{
+        user,
+        login,
+        register,
+        logout,
+        resendCode,
+        isPending,
+        verify,
+        completeProfile,
+      }}>
       {children}
     </AuthContext.Provider>
   )

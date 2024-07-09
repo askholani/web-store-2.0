@@ -16,3 +16,4 @@ Route::middleware('checkAuth')->group(function () {
   Route::post('/me', [AuthController::class, 'me']);
   Route::post('/verify', [AuthController::class, 'verify']);
 });
+Route::post('/profile/complete', [AuthController::class, 'completeProfile']);

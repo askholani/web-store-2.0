@@ -36,7 +36,7 @@ const Register = () => {
         }
       } catch (error) {
         setApiError(error.message || 'An error occurred')
-        console.error('Error:', error)
+        //   console.error('Error:', error)
       } finally {
         setIsSubmitting(false)
       }

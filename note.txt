@@ -1,0 +1,63 @@
+pass : 
+123123123123123
+email : 
+askholani.ibnuhajar@gmail.com
+
+feture
+forgot password
+new password
+location page
+loader component
+RestFull API : 
+post on completeProfile to put
+
+
+src/
+├── components/
+│   ├── Auth/
+│   │   ├── Login.js
+│   │   ├── Register.js
+│   │   ├── ForgotPassword.js
+│   │   ├── ResetPassword.js
+│   │   ├── AuthForm.js
+│   │   └── index.js
+│   ├── Layout/
+│   │   ├── Header.js
+│   │   ├── Footer.js
+│   │   └── index.js
+│   └── common/
+│       ├── Button.js
+│       ├── Input.js
+│       └── index.js
+├── contexts/
+│   ├── AuthContext.js
+│   └── index.js
+├── hooks/
+│   ├── useAuth.js
+│   └── index.js
+├── pages/
+│   ├── Auth/
+│   │   ├── LoginPage.js
+│   │   ├── RegisterPage.js
+│   │   ├── ForgotPasswordPage.js
+│   │   ├── ResetPasswordPage.js
+│   │   └── index.js
+│   ├── HomePage.js
+│   └── DashboardPage.js
+├── services/
+│   ├── authService.js
+│   └── index.js
+├── utils/
+│   ├── validators.js
+│   └── index.js
+├── App.js
+├── index.js
+└── styles/
+    ├── main.css
+    └── auth.css
+
+feature : 
+loader fetch
+new password
+forgot password
+drag image to fit on the photo

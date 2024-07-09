@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -218,7 +219,6 @@ class AuthController extends Controller
         'verification_code_expired' => null // Optionally clear the expiration time
       ]);
       DB::commit();
-      return response()->Json(['user' => $user, 'time' => $time]);
       return response()->json(["message" => 'Email verified successfully'], 200);
     } catch (\Exception $e) {
       DB::rollBack();
@@ -226,4 +226,99 @@ class AuthController extends Controller
       return response()->json(["message" => 'Verification failed'], 500);
     }
   }
+
+  public function completeProfile(Request $request)
+  {
+    $user = Auth::user();
+    if (!$user) {
+      return response()->json(['message' => 'User not authenticated'], 401);
+    }
+
+    $validator = Validator::make($request->all(), [
+      'name' => ['required', 'string', 'max:255'],
+      'phone' => ['required', 'string', 'max:15'], // assuming max 15 characters for phone numbers
+      'gender' => ['required', 'string', 'in:male,female'], // if you have specific gender options
+      'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // max 2MB file size
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json($validator->errors(), 422);
+    }
+
+    $data = $validator->validated();
+    $url = '';
+
+
+    $photo = $request->file('photo');
+
+    if ($photo) {
+      $dir = Str::slug($data['name']);
+      $code = Str::random(4);
+      $filename = "{$code}_photo_" . Str::slug(explode(' ', $data['name'])[0]);
+      $result = $request->file('photo')->storeOnCloudinaryAs($dir, $filename);
+      $url = $result->getSecurePath();
+    }
+
+    try {
+      DB::beginTransaction();
+      $user = User::where('id', $user->id)->first();
+
+      $user->update([
+        'name' => $data['name'],
+        'phone' => $data['phone'],
+        'gender' => $data['gender'],
+        'photo' => $url,
+      ]);
+
+      DB::commit();
+      return response()->json(['user' => $user, 'data' => $data]);
+      return response()->json(['message' => 'Profile updated successfully'], 200);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      Log::error('Profile update failed: ' . $e->getMessage());
+      return response()->json(['message' => 'Profile update failed'], 500);
+    }
+  }
+
+  // public function completeProfile(Request $request)
+  // {
+  //   // Store the uploaded file
+  //   $file = $request->file('file');
+
+  //   if ($file) {
+  //     $fileName = time() . '_' . $file->getClientOriginalName();
+  //     $destinationPath = 'uploads';
+  //     try {
+  //       $dir = Str::slug('name');
+  //       $code = Str::random(4);
+  //       $filename = "{$code}_photo_" . Str::slug(explode(' ', 'name')[0]);
+  //       $file = $request->file('file');
+  //       // $result = $request->file('photo')->storeOnCloudinaryAs($dir, $filename);
+  //       $result = $file->storeOnCloudinaryAs($dir, $filename);
+  //       $publicId = $result->getPublicId();
+  //       return response()->json(['publicId' => $publicId]);
+
+  //       Storage::disk('local')->putFileAs(
+  //         $destinationPath,
+  //         $file,
+  //         $fileName
+  //       );
+
+  //       // $user = Auth::user();
+  //       // Store file information in the database
+  //       // $uploadedFile = new User();
+  //       // $uploadedFile->file_name = $fileName;
+  //       // $uploadedFile->save();
+
+  //       // Return a JSON response with success message
+  //       return response()->json(['message' => "File uploaded successfully.", 'file_name' => $fileName], 200);
+  //     } catch (\Exception $e) {
+  //       // Return a JSON response with error message
+  //       return response()->json(['message' => "Failed to upload the file.", 'error' => $e->getMessage()], 500);
+  //     }
+  //   } else {
+  //     // Return a JSON response if no file was uploaded
+  //     return response()->json(['message' => "No file uploaded."], 400);
+  //   }
+  // }
 }

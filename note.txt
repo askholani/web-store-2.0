@@ -3,13 +3,6 @@ pass :
 email : 
 askholani.ibnuhajar@gmail.com
 
-feture
-forgot password
-new password
-location page
-loader component
-RestFull API : 
-post on completeProfile to put
 
 
 src/
@@ -61,3 +54,7 @@ loader fetch
 new password
 forgot password
 drag image to fit on the photo
+location page
+loader component
+RestFull API : 
+post on completeProfile to put

@@ -4,6 +4,7 @@ import { useContext, useState } from 'react'
 import InputComp from './InputComp'
 import AuthContext from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import { determineRoute } from '../utils/helpers'
 
 const Login = () => {
   const { login } = useContext(AuthContext)
@@ -24,9 +25,7 @@ const Login = () => {
         const result = await login(values.email, values.password)
         if (result.status === 200) {
           setSuccessMessage('Login successful.')
-          console.log('result', result)
-          const emailVerification = result.data.user.email_verified_at
-          const route = emailVerification ? '/profile' : '/verification'
+          const route = determineRoute(result.data.user)
           setTimeout(() => {
             navigate(route)
           }, 2000)

@@ -1,5 +1,5 @@
 import './App.css'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import RegisterPage from './pages/Auth/RegisterPage'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import LoginPage from './pages/Auth/LoginPage'
@@ -8,11 +8,14 @@ import ProfilePage from './pages/ProgilePage'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoaderPage from './pages/LoaderPage'
 import { useEffect, useState } from 'react'
+import UserLayout from './layout/UserLayout'
+import ExperimentPage from './pages/ExperimentPage'
+import ProductProviderRoutes from './routes/ProductProviderRoutes'
 
 function App() {
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const location = useLocation()
-  console.log('location', location)
 
   useEffect(() => {
     const handleStart = () => setLoading(true)
@@ -23,22 +26,38 @@ function App() {
 
     return () => clearTimeout(timeout)
   }, [location])
-  // console.log(loading)
+
+  if (location.pathname === '/') {
+    navigate('/product')
+    return
+  }
+
   return (
     <>
       {loading && <LoaderPage />}
-      <Routes>
-        <Route path='/register' element={<RegisterPage />}></Route>
-        <Route path='/login' element={<LoginPage />}></Route>
-        <Route
-          path='/verification'
-          element={<ProtectedRoute element={<VerificationPage />} />}></Route>
-        <Route
-          path='/profile'
-          element={
-            <ProtectedRoute element={<ProfilePage />}></ProtectedRoute>
-          }></Route>
-      </Routes>
+      {!loading && (
+        <Routes>
+          <Route path='/register' element={<RegisterPage />}></Route>
+          <Route path='/login' element={<LoginPage />}></Route>
+          <Route
+            path='/verification'
+            element={<ProtectedRoute element={<VerificationPage />} />}></Route>
+          <Route
+            path='/profile'
+            element={
+              <ProtectedRoute element={<ProfilePage />}></ProtectedRoute>
+            }></Route>
+          <Route
+            path='/*'
+            element={
+              <UserLayout>
+                <ProductProviderRoutes />
+              </UserLayout>
+            }
+          />
+          <Route path='/exp' element={<ExperimentPage />}></Route>
+        </Routes>
+      )}
     </>
   )
 }

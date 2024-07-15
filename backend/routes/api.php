@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,5 +16,8 @@ Route::middleware('checkAuth')->group(function () {
   Route::get('/resend', [AuthController::class, 'resend']);
   Route::post('/me', [AuthController::class, 'me']);
   Route::post('/verify', [AuthController::class, 'verify']);
+  Route::post('/profile/complete', [AuthController::class, 'completeProfile']);
 });
-Route::post('/profile/complete', [AuthController::class, 'completeProfile']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/images', [AuthController::class, 'getImages']);
+Route::post('/images/store', [AuthController::class, 'storeNewProduct']);

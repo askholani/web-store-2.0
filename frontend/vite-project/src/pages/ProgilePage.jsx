@@ -9,7 +9,7 @@ const ProfilePage = () => {
     <main className='px-2 py-4 flex flex-col gap-y-8'>
       <section className='flex justify-start'>
         <Link
-          to={'/profile'}
+          to={'/'}
           className='w-12 h-12 border border-slate-400 rounded-full flex justify-center items-center'>
           <i className='fas fa-arrow-left text-lg'></i>
         </Link>

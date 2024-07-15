@@ -3,6 +3,7 @@ import { createContext, useState, useEffect } from 'react'
 import axiosInstance, { axiosInstanceFile } from '../api/axiosAuth'
 import { useLocation } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import { determineRoute } from '../utils/helpers'
 
 const AuthContext = createContext()
 
@@ -33,8 +34,7 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation()
   const currentUrl = location.pathname
   if (user && currentUrl === '/login') {
-    console.log('user', user)
-    const path = user.emal_verified_at !== null ? '/profile' : '/verification'
+    const path = determineRoute(user)
     setTimeout(() => {
       navigate(path)
     }, 0)
@@ -83,10 +83,27 @@ export const AuthProvider = ({ children }) => {
     formData.append('phone', phone)
     formData.append('gender', gender)
     formData.append('photo', photo)
-
     const response = await axiosInstanceFile.post('/profile/complete', formData)
-    console.log('response', response)
 
+    return response
+  }
+
+  const getNewProduct = async (type = null, quantities = null) => {
+    console.log('type', type)
+    console.log('quantities', quantities)
+    const response = await axiosInstance.get('/images', {
+      params: {
+        type: type,
+        quantities: quantities,
+      },
+    })
+    return response
+  }
+
+  const storeNewProduct = async (data) => {
+    const response = await axiosInstance.post('/images/store', {
+      data,
+    })
     return response
   }
   // const completeProfile = async (name, phone, gender, photo) => {
@@ -144,6 +161,8 @@ export const AuthProvider = ({ children }) => {
         isPending,
         verify,
         completeProfile,
+        getNewProduct,
+        storeNewProduct,
       }}>
       {children}
     </AuthContext.Provider>

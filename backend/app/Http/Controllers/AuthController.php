@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use GuzzleHttp\Client;
+use App\Models\Product;
 use Illuminate\Support\Str;
 use App\Mail\UserRegistered;
 use Illuminate\Http\Request;
@@ -13,9 +15,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Exceptions\JWTException;
+use App\Models\ProductDetail;
 
 class AuthController extends Controller
 {
@@ -280,45 +281,84 @@ class AuthController extends Controller
     }
   }
 
-  // public function completeProfile(Request $request)
-  // {
-  //   // Store the uploaded file
-  //   $file = $request->file('file');
+  public function getImages(Request $request)
+  {
+    $type = $request->type ?? 'shirt man';
+    $quantities = $request->quantities ?? 8;
+    $client = new Client([
+      'base_uri' => env('UNSPLASH_URL')
+    ]);
+    $response = $client->request('GET', 'photos/random', [
+      'headers' => [
+        // 'Authorization' => "Client-ID" . env('UNSPLASH_ACCESS_KEY')
+      ],
+      'query' => [
+        'query' => $type,
+        'count' => $quantities,
+        'client_id' => env('UNSPLASH_ACCESS_KEY')
+      ]
+    ]);
+    $body = $response->getBody()->getContents();
+    $data = json_decode($body, true);
 
-  //   if ($file) {
-  //     $fileName = time() . '_' . $file->getClientOriginalName();
-  //     $destinationPath = 'uploads';
-  //     try {
-  //       $dir = Str::slug('name');
-  //       $code = Str::random(4);
-  //       $filename = "{$code}_photo_" . Str::slug(explode(' ', 'name')[0]);
-  //       $file = $request->file('file');
-  //       // $result = $request->file('photo')->storeOnCloudinaryAs($dir, $filename);
-  //       $result = $file->storeOnCloudinaryAs($dir, $filename);
-  //       $publicId = $result->getPublicId();
-  //       return response()->json(['publicId' => $publicId]);
+    return response()->json($data);
+  }
 
-  //       Storage::disk('local')->putFileAs(
-  //         $destinationPath,
-  //         $file,
-  //         $fileName
-  //       );
+  public function storeNewProduct(Request $req)
+  {
+    // Validate the request data
+    $validated = $req->validate([
+      'data.*.name' => 'required|string|max:255',
+      'data.*.description' => 'required|string',
+      'data.*.image' => 'required|url',
+      'data.*.size' => 'required|string|max:10',
+      'data.*.price' => 'required|numeric|min:0',
+      'data.*.color' => 'required|string|max:50',
+      'data.*.likes' => 'required|numeric|',
+      'data.*.category' => 'required|string|max:50',
+    ]);
 
-  //       // $user = Auth::user();
-  //       // Store file information in the database
-  //       // $uploadedFile = new User();
-  //       // $uploadedFile->file_name = $fileName;
-  //       // $uploadedFile->save();
+    // Use a transaction to ensure data integrity
+    DB::beginTransaction();
 
-  //       // Return a JSON response with success message
-  //       return response()->json(['message' => "File uploaded successfully.", 'file_name' => $fileName], 200);
-  //     } catch (\Exception $e) {
-  //       // Return a JSON response with error message
-  //       return response()->json(['message' => "Failed to upload the file.", 'error' => $e->getMessage()], 500);
-  //     }
-  //   } else {
-  //     // Return a JSON response if no file was uploaded
-  //     return response()->json(['message' => "No file uploaded."], 400);
-  //   }
-  // }
+    try {
+      $data = $req->all()["data"];
+
+      // Create the main product
+
+      $product = '';
+      // Create the product details
+      foreach ($data as $key => $value) {
+        if ($key === 0) {
+          $product = Product::create([
+            'name' => $value['name'],
+            'description' => $value['description'],
+            'image' => $value['image'],
+            'likes' => $value["likes"],
+            'category' => $value["category"],
+            'price' => $value["price"]
+          ]);
+        }
+        // if ($key > 0) {
+        ProductDetail::create([
+          'image' => $value['description'],
+          'size' => $value['size'],
+          'price' => $value['price'],
+          'product_id' => $product->id,
+          'color' => $value['color']
+        ]);
+        // }
+      }
+
+      // Commit the transaction
+      DB::commit();
+
+      return response()->json(['message' => 'Product created successfully'], 201);
+    } catch (\Exception $e) {
+      // Rollback the transaction if something goes wrong
+      DB::rollBack();
+
+      return response()->json(['error' => 'Failed to create product', 'details' => $e->getMessage()], 500);
+    }
+  }
 }

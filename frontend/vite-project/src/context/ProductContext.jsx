@@ -1,29 +1,54 @@
 import { createContext, useEffect, useState } from 'react'
 import axiosInstance from '../api/axiosAuth'
 
-import { useQuery } from '../utils/helpers'
+import { convertSort, useQuery, useQueryItem } from '../utils/helpers'
 
 const ProductContext = createContext()
 
 export const ProductProvider = ({ children }) => {
   const query = useQuery()
-  const page = query.get('page')
-  const category = query.get('category')
-  const sort = query.get('sort')
-  const order = query.get('order') ?? 'asc'
+
+  const [prodRec, setProdRec] = useState(null)
   const [product, setProduct] = useState(null)
   const [isLoading, setLoading] = useState(true)
   const [isError, setError] = useState(false)
 
-  const fetchProducts = async (page = 1, category = 'all', perPage = 6) => {
+  const page = query.get('page')
+  const queryItem = useQueryItem()
+
+  const fetchProducts = async (
+    pageData,
+    query,
+    search = null,
+    press,
+    perPage = 6,
+  ) => {
+    const { order, category, sort } = query
+    console.log('query', query)
+    const pageNum = pageData ?? page
     setLoading(true)
     setError(false)
 
     try {
-      const response = await axiosInstance.get('/products', {
-        params: { page, perPage, category, order },
-      })
-      setProduct(response.data)
+      let response = null
+      console.log('search', search)
+      if (search) {
+        response = await axiosInstance.get('/products', {
+          params: { search, page: pageNum },
+        })
+        setProdRec(response.data)
+        if (press) {
+          setProdRec(null)
+          setProduct(response.data)
+        }
+      } else {
+        console.log('category', category)
+        response = await axiosInstance.get('/products', {
+          params: { page: pageNum, perPage, category, order, sort },
+        })
+        setProduct(response.data)
+      }
+
       setLoading(false)
     } catch (err) {
       setError(err)
@@ -32,12 +57,20 @@ export const ProductProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    fetchProducts(page, category)
-  }, [page, category, sort, order])
+    const newQueryItem = {
+      ...queryItem,
+      sort: convertSort(queryItem.sort),
+    }
+    fetchProducts(page, newQueryItem)
+  }, [])
+
+  // const searchFetchProducts = async (query) => {
+  //   const response = await axiosInstance.get('/products')
+  // }
 
   return (
     <ProductContext.Provider
-      value={{ product, isLoading, isError, fetchProducts }}>
+      value={{ product, isLoading, isError, fetchProducts, prodRec }}>
       {children}
     </ProductContext.Provider>
   )

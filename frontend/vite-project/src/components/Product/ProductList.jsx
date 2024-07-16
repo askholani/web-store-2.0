@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Product from './Product'
 import Pagination from '../Pagination'
-import { useQuery } from '../../utils/helpers'
+import { convertSort, useQueryItem } from '../../utils/helpers'
 
 const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
   const navigate = useNavigate()
-  const query = useQuery()
+  const queryItem = useQueryItem()
 
   const handlePageChange = (page) => {
-    const category = query.get('category')
-    const sort = query.get('sort') // Fixed the typo here from sort() to get()
+    const { category, sort, order } = queryItem
+
     let currPage = `?page=${page}`
 
     if (category !== 'all' && category !== null) {
@@ -21,11 +21,19 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
       currPage += `&sort=${sort}`
     }
 
+    if (order !== null) {
+      currPage += `&order=${order}`
+    }
+
     navigate(currPage)
-    onFetchProducts(page)
+    const newQueryItem = {
+      ...queryItem,
+      sort: convertSort(queryItem.sort),
+    }
+    onFetchProducts(page, newQueryItem)
   }
 
-  const [data, setData] = useState(null)
+  const [data, setData] = useState(new Array(4))
   useEffect(() => {
     if (products) {
       setData(products.data)
@@ -33,8 +41,26 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
   }, [products])
 
   if (isLoading || !data) {
-    return <div>Loading</div>
+    return (
+      <div className='flex justify-around flex-wrap gap-y-4'>
+        {data.map((val, index) => (
+          <div key={index} className='relative w-1/2'>
+            <div className='bg-slate-50 w-8 h-8 absolute top-2 right-6 flex justify-center items-center rounded-full'>
+              <i className='fas fa-heart text-lg'></i>
+            </div>
+            <div className='rounded-md'>
+              <img src={''} alt='' className='w-40 h-40 object-cover' />
+            </div>
+            <div className='flex flex-col gap-y-1 font-semibold text-start px-1'>
+              <span className='line-clamp-1'>{''}</span>
+              <span>Rp {''}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    )
   }
+
   if (isError) {
     return <div>{isError}</div>
   }

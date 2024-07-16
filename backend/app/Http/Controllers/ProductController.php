@@ -17,7 +17,7 @@ class ProductController extends Controller
       'page' => 'integer|min:1',
       'perPage' => 'integer|min:1',
       'category' => 'string|nullable',
-      'sort' => 'string|in:name,price,created_at|nullable',
+      'sort' => 'string|nullable',
       'sortBy' => 'string|in:asc,desc|nullable'
     ]);
 

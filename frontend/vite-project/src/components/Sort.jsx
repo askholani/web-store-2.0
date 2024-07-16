@@ -1,46 +1,17 @@
-import { useState } from 'react'
-import { useQuery } from '../utils/helpers'
+import { useState, useContext } from 'react'
+import { useQueryItem, convertSort, deConvertSort } from '../utils/helpers'
 import { useLocation, useNavigate } from 'react-router-dom'
-
-const convertSort = (sort) => {
-  let newSort = ''
-  switch (sort) {
-    case 'newst':
-      newSort = 'created_at'
-      break
-    case 'popular':
-      newSort = 'likes'
-      break
-    default:
-      break
-  }
-  return newSort
-}
-
-const deConvertSort = (sort) => {
-  let newSort = ''
-  switch (sort) {
-    case 'created_at':
-      newSort = 'newst'
-      break
-    case 'likes':
-      newSort = 'popular '
-      break
-    default:
-      break
-  }
-  return newSort
-}
+import ProductContext from '../context/ProductContext'
 
 let order = true
 
 const Sort = () => {
+  const { fetchProducts } = useContext(ProductContext)
+  const queryItem = useQueryItem()
   const location = useLocation()
-  const query = useQuery()
   const navigate = useNavigate()
 
-  const paramSort = query.get('sort')
-  const paramCategory = query.get('category')
+  const { category: paramCategory, sort: paramSort } = queryItem
 
   const [sort, setSort] = useState(() => {
     return deConvertSort(paramSort)
@@ -48,7 +19,6 @@ const Sort = () => {
 
   const handleSort = (newSort) => {
     if (newSort === sort) {
-      console.log('same')
       order = !order
     } else {
       order = true
@@ -69,8 +39,13 @@ const Sort = () => {
       newPath =
         location.pathname + `?page=1` + `&sort=${sortData}&order=${order}`
     }
-
     navigate(newPath)
+    const newQueryItem = {
+      ...queryItem,
+      sort: sortData,
+      order: order,
+    }
+    fetchProducts(1, newQueryItem)
   }
 
   return (

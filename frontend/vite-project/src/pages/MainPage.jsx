@@ -1,16 +1,24 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import ProductList from '../components/Product/ProductList'
 import ProductContext from '../context/ProductContext'
 import Category from '../components/Category'
 import Sort from '../components/Sort'
+import SearchComp from '../components/Search/SearchComp'
 
 const MainPage = () => {
-  const { isLoading, isError, product, fetchProducts } =
+  const { isLoading, isError, product, fetchProducts, prodRec } =
     useContext(ProductContext)
-  // console.log('product', product)
+  const [showList, setShowList] = useState(false)
+
+  const handleShowList = (show) => {
+    setShowList(show)
+  }
+
   return (
     <main className='px-1 py-4 flex flex-col gap-y-8 mb-16'>
-      <section className='flex justify-between items-end'>
+      <section
+        className='flex justify-between items-end'
+        onClick={() => handleShowList(false)}>
         <div className='flex flex-col gap-y-2'>
           <span className='text-start font-semibold opacity-60'>Location</span>
           <div className='flex gap-x-2 items-center'>
@@ -24,13 +32,17 @@ const MainPage = () => {
           <i className='fas fa-bell text-2xl'></i>
         </div>
       </section>
-      <section>
-        <label className='input input-bordered flex items-center gap-2'>
-          <input type='text' className='grow' placeholder='Search' />
-          <i className='fas fa-search text-lg'></i>
-        </label>
-      </section>
-      <section className='bg-slate-200 flex flex-col rounded-md py-6 px-4 gap-y-4'>
+      <SearchComp
+        onFetchProducts={fetchProducts}
+        isLoading={isLoading}
+        isError={isError}
+        prodRec={prodRec}
+        onHandleShowList={handleShowList}
+        showList={showList}
+      />
+      <section
+        className='bg-slate-200 flex flex-col rounded-md py-6 px-4 gap-y-4'
+        onClick={() => handleShowList(false)}>
         <div className='gap-y-2'>
           <span className='flex font-bold text-lg'>New Collection</span>
           <div className='flex flex-col text-start'>

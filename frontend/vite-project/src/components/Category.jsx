@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { useQuery } from '../utils/helpers'
+import { convertSort, useQueryItem } from '../utils/helpers'
+import ProductContext from '../context/ProductContext'
 
 const categories = [
   {
@@ -22,12 +23,11 @@ const categories = [
 ]
 
 const Category = () => {
-  const query = useQuery()
+  const { fetchProducts } = useContext(ProductContext)
+  const queryItem = useQueryItem()
   const location = useLocation()
   const navigate = useNavigate()
-
-  const paramCategory = query.get('category')
-  const paramSort = query.get('sort')
+  const { category: paramCategory, sort: paramSort } = queryItem
 
   const [category, setCategory] = useState(paramCategory)
 
@@ -46,7 +46,14 @@ const Category = () => {
     } else {
       newPath = location.pathname + `?page=1` + `&category=${category}`
     }
+
+    const newQueryItem = {
+      ...queryItem,
+      category,
+      sort: convertSort(queryItem.sort),
+    }
     navigate(newPath)
+    fetchProducts(1, newQueryItem)
   }
 
   return (

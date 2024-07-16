@@ -1,10 +1,13 @@
 import { useContext } from 'react'
 import ProductList from '../components/Product/ProductList'
 import ProductContext from '../context/ProductContext'
+import Category from '../components/Category'
+import Sort from '../components/Sort'
 
 const MainPage = () => {
   const { isLoading, isError, product, fetchProducts } =
     useContext(ProductContext)
+  // console.log('product', product)
   return (
     <main className='px-1 py-4 flex flex-col gap-y-8 mb-16'>
       <section className='flex justify-between items-end'>
@@ -39,91 +42,14 @@ const MainPage = () => {
           shop now
         </button>
       </section>
-      <section className='flex flex-col gap-y-4'>
-        <div className='flex justify-between items-end'>
-          <span className='text-lg font-bold'>Category</span>
-          <span className='text-sm'>See All</span>
-        </div>
-        <div className='flex justify-between'>
-          <div className='flex justify-center flex-col'>
-            <div className='flex justify-center items-center bg-slate-200 w-16 h-16 rounded-full'>
-              <img
-                className='w-10 h-w-10'
-                src='https://img.icons8.com/?size=100&id=10179&format=png&color=000000'
-                alt=''
-              />
-            </div>
-            <span className='text-sm font-semibold'>Pant</span>
-          </div>
-          <div className='flex flex-col justify-center'>
-            <div className='flex justify-center items-center bg-slate-200 w-16 h-16 rounded-full'>
-              <img
-                className='w-10 h-w-10'
-                src='https://img.icons8.com/?size=100&id=105820&format=png&color=000000'
-                alt=''
-              />
-            </div>
-            <span className='text-sm font-semibold'>T-Shirt</span>
-          </div>
-          <div className='flex flex-col justify-center'>
-            <div className='flex justify-center items-center bg-slate-200 w-16 h-16 rounded-full'>
-              <img
-                className='w-10 h-w-10'
-                src='https://img.icons8.com/?size=100&id=60888&format=png&color=000000'
-                alt=''
-              />
-            </div>
-            <span className='text-sm font-semibold'>Jacket</span>
-          </div>
-          <div className='flex flex-col justify-center'>
-            <div className='flex justify-center items-center bg-slate-200 w-16 h-16 rounded-full'>
-              <img
-                className='w-10 h-w-10'
-                src='https://img.icons8.com/?size=100&id=116807&format=png&color=000000'
-                alt=''
-              />
-            </div>
-            <span className='text-sm font-semibold'>Muslimah</span>
-          </div>
-        </div>
-      </section>
-      <section className='flex flex-col gap-y-4'>
-        <div className='carousel rounded-box flex gap-x-4'>
-          <div className='carousel-item'>
-            <div className='rounded-full px-3 py-1 border border-slate-500 text-sm font-bold'>
-              All
-            </div>
-          </div>
-          <div className='carousel-item'>
-            <div className='rounded-full px-3 py-1 border border-slate-500 text-sm font-bold'>
-              Newest
-            </div>
-          </div>
-          <div className='carousel-item'>
-            <div className='rounded-full px-3 py-1 border border-slate-500 text-sm font-bold'>
-              Popular
-            </div>
-          </div>
-          <div className='carousel-item'>
-            <div className='rounded-full px-3 py-1 border border-slate-500 text-sm font-bold'>
-              Men
-            </div>
-          </div>
-          <div className='carousel-item'>
-            <div className='rounded-full px-3 py-1 border border-slate-500 text-sm font-bold'>
-              Woman
-            </div>
-          </div>
-        </div>
-      </section>
-      {/* <section className='flex flex-col gap-y-4'> */}
+      <Category />
+      <Sort />
       <ProductList
         products={product}
         isLoading={isLoading}
         isError={isError}
         onFetchProducts={fetchProducts}
       />
-      {/* </section> */}
     </main>
   )
 }

@@ -16,6 +16,7 @@ function App() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const location = useLocation()
+  const path = location.pathname
 
   useEffect(() => {
     const handleStart = () => setLoading(true)
@@ -25,7 +26,7 @@ function App() {
     const timeout = setTimeout(handleComplete, 1000) // Adjust timeout as needed
 
     return () => clearTimeout(timeout)
-  }, [location])
+  }, [path])
 
   if (location.pathname === '/') {
     navigate('/product')

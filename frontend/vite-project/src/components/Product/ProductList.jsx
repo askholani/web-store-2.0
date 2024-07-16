@@ -2,12 +2,25 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Product from './Product'
 import Pagination from '../Pagination'
+import { useQuery } from '../../utils/helpers'
 
 const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
   const navigate = useNavigate()
+  const query = useQuery()
 
   const handlePageChange = (page) => {
-    const currPage = `?page=${page}`
+    const category = query.get('category')
+    const sort = query.get('sort') // Fixed the typo here from sort() to get()
+    let currPage = `?page=${page}`
+
+    if (category !== 'all' && category !== null) {
+      currPage += `&category=${category}`
+    }
+
+    if (sort !== 'all' && sort !== null) {
+      currPage += `&sort=${sort}`
+    }
+
     navigate(currPage)
     onFetchProducts(page)
   }

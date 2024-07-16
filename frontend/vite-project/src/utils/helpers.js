@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 export const determineRoute = (user) => {
   const emailVerification = user.email_verified_at
   const phone = user.phone
@@ -10,4 +11,7 @@ export const determineRoute = (user) => {
   } else {
     return '/'
   }
+}
+export const useQuery = () => {
+  return new URLSearchParams(useLocation().search)
 }

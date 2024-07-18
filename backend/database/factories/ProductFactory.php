@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use GuzzleHttp\Client;
+
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -2,16 +2,28 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Product from './Product'
 import Pagination from '../Pagination'
-import { convertSort, useQueryItem } from '../../utils/helpers'
+import { convertSort, useQuery, useQueryItem } from '../../utils/helpers'
 
 const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
+  console.log('products', products)
   const navigate = useNavigate()
   const queryItem = useQueryItem()
+  const query = useQuery()
+  const search = query.get('search')
 
   const handlePageChange = (page) => {
     const { category, sort, order } = queryItem
+    let currPage = ''
 
-    let currPage = `?page=${page}`
+    if (search !== null) {
+      currPage += `?search=${search}`
+    }
+
+    if (page !== null && search === null) {
+      currPage += `?page=${page}`
+    } else {
+      currPage += `&page=${page}`
+    }
 
     if (category !== 'all' && category !== null) {
       currPage += `&category=${category}`
@@ -30,7 +42,7 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
       ...queryItem,
       sort: convertSort(queryItem.sort),
     }
-    onFetchProducts(page, newQueryItem)
+    onFetchProducts(page, newQueryItem, search, true)
   }
 
   const [data, setData] = useState(new Array(4))

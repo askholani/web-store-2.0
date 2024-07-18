@@ -14,35 +14,34 @@ export const ProductProvider = ({ children }) => {
   const [isError, setError] = useState(false)
 
   const page = query.get('page')
+  const search = query.get('search')
   const queryItem = useQueryItem()
 
   const fetchProducts = async (
     pageData,
     query,
     search = null,
-    press,
+    press = false,
     perPage = 6,
   ) => {
     const { order, category, sort } = query
-    console.log('query', query)
     const pageNum = pageData ?? page
     setLoading(true)
     setError(false)
 
     try {
       let response = null
-      console.log('search', search)
       if (search) {
         response = await axiosInstance.get('/products', {
-          params: { search, page: pageNum },
+          params: { search, page: pageNum, press },
         })
-        setProdRec(response.data)
         if (press) {
           setProdRec(null)
           setProduct(response.data)
+        } else {
+          setProdRec(response.data)
         }
       } else {
-        console.log('category', category)
         response = await axiosInstance.get('/products', {
           params: { page: pageNum, perPage, category, order, sort },
         })
@@ -61,7 +60,7 @@ export const ProductProvider = ({ children }) => {
       ...queryItem,
       sort: convertSort(queryItem.sort),
     }
-    fetchProducts(page, newQueryItem)
+    fetchProducts(page, newQueryItem, search, true)
   }, [])
 
   // const searchFetchProducts = async (query) => {

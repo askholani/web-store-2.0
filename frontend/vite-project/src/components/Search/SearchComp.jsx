@@ -2,30 +2,28 @@ import { useState, useEffect, useCallback } from 'react'
 import _ from 'lodash'
 import { convertSort, useQuery, useQueryItem } from '../../utils/helpers'
 import SearcList from './SearchList'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-const SearchComp = ({
-  onFetchProducts,
-  isLoading,
-  isError,
-  prodRec,
-  onHandleShowList,
-  showList,
-}) => {
+const SearchComp = ({ onFetchProducts, isLoading, isError, prodRec }) => {
   const query = useQuery()
   const queryItem = useQueryItem()
   const [value, setValue] = useState('')
   const [searching, setSearching] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const newQueryItem = {
+    ...queryItem,
+    sort: convertSort(queryItem.sort),
+  }
 
   const page = query.get('page')
-  const search = query.get('search')
 
   const handleKeyDown = (e) => {
-    console.log(e.key)
-    if (e.key === 'enter') {
+    if (e.key === 'Enter') {
       setSearching(true)
-    }
-    if (e.key === 'Escape') {
-      onHandleShowList(false)
+      onFetchProducts(page, newQueryItem, value, true)
+      navigate(`${location.pathname}?search=${value}`)
     }
   }
 
@@ -34,25 +32,21 @@ const SearchComp = ({
   }
 
   const handleShowList = () => {
-    onHandleShowList(true)
+    setSearching(false)
   }
 
   const debouncedFetchResults = useCallback(
     _.debounce((searchQuery) => {
-      const newQueryItem = {
-        ...queryItem,
-        sort: convertSort(queryItem.sort),
-      }
       onFetchProducts(page, newQueryItem, searchQuery, searching)
-    }, 300),
+    }, 500),
     [],
   )
 
   useEffect(() => {
-    if (search) {
-      debouncedFetchResults(search)
+    if (value) {
+      debouncedFetchResults(value)
     }
-  }, [search, debouncedFetchResults])
+  }, [value, debouncedFetchResults])
 
   return (
     <section className='flex flex-col gap-y-2'>
@@ -70,7 +64,7 @@ const SearchComp = ({
           <i className='fas fa-search text-lg'></i>
         </label>
       </div>
-      <SearcList show={showList} />
+      <SearcList prodRec={prodRec} search={value} searching={searching} />
     </section>
   )
 }

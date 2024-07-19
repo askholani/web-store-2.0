@@ -1,34 +1,3 @@
-// import * as yup from 'yup'
-// import { useFormik } from 'formik'
-
-// const MAX_FILE_SIZE = 2000000
-// const imageVal = yup
-//   .mixed()
-//   .required('A image is required')
-//   .test('fileType', 'Unsupported file format', (value) => {
-//     if (!value) return true // Image is optional
-//     const supportedFormats = ['image/jpeg', 'image/png']
-//     return supportedFormats.includes(value.type)
-//   })
-//   .test('fileSize', `File too big, can't exceed ${MAX_FILE_SIZE}`, (value) => {
-//     if (!value) return true // Image is optional
-//     return value.size <= MAX_FILE_SIZE
-//   })
-
-// const ExperimentPage = () => {
-//   const formik = useFormik({
-//     initialValues: {
-//       image: '',
-//     },
-//     validationSchema: yup.object({
-//       image: imageVal,
-//     }),
-//   })
-//   return <form></form>
-// }
-
-// export default ExperimentPage
-
 import { useContext, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 const sizes = ['s', 'm', 'l', 'xl']
@@ -42,7 +11,7 @@ const ExperimentPage = () => {
   const handleImage = async () => {
     try {
       // const type = 'trouser';
-      const result = await getNewProduct('man jacket', 5)
+      const result = await getNewProduct('man trouser', 5)
       const item = []
 
       result.data.forEach((val) => {
@@ -59,7 +28,7 @@ const ExperimentPage = () => {
           size: sizes[numSize],
           color: val.color,
           price: numPrice,
-          category: 'jacket',
+          category: 'trouser',
         })
       })
 

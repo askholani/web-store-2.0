@@ -8,7 +8,6 @@ import ProfilePage from './pages/ProgilePage'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoaderPage from './pages/LoaderPage'
 import { useEffect, useState } from 'react'
-import UserLayout from './layout/UserLayout'
 import ExperimentPage from './pages/ExperimentPage'
 import ProductProviderRoutes from './routes/ProductProviderRoutes'
 

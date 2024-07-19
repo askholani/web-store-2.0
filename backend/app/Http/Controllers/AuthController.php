@@ -340,7 +340,7 @@ class AuthController extends Controller
         }
         // if ($key > 0) {
         ProductDetail::create([
-          'image' => $value['description'],
+          'image' => $value['image'],
           'size' => $value['size'],
           'price' => $value['price'],
           'product_id' => $product->id,

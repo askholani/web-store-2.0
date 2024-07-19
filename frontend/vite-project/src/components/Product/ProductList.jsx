@@ -5,7 +5,7 @@ import Pagination from '../Pagination'
 import { convertSort, useQuery, useQueryItem } from '../../utils/helpers'
 
 const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
-  console.log('products', products)
+  // console.log('products', products)
   const navigate = useNavigate()
   const queryItem = useQueryItem()
   const query = useQuery()

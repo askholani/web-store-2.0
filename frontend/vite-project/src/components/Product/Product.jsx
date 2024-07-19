@@ -1,7 +1,12 @@
+import { Link } from 'react-router-dom'
+
 const Product = ({ value }) => {
   // console.log('value', value)
   return (
-    <div key={value.id} className='relative w-1/2'>
+    <Link
+      to={`/product/${value.id}-${value.name}`}
+      key={value.id}
+      className='relative w-1/2'>
       <div className='bg-slate-50 w-8 h-8 absolute top-2 right-6 flex justify-center items-center rounded-full'>
         <i className='fas fa-heart text-lg'></i>
       </div>
@@ -12,7 +17,7 @@ const Product = ({ value }) => {
         <span className='line-clamp-1'>{value.name}</span>
         <span>Rp {value.price}.000,00</span>
       </div>
-    </div>
+    </Link>
   )
 }
 

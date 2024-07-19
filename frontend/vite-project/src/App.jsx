@@ -48,14 +48,7 @@ function App() {
             element={
               <ProtectedRoute element={<ProfilePage />}></ProtectedRoute>
             }></Route>
-          <Route
-            path='/*'
-            element={
-              <UserLayout>
-                <ProductProviderRoutes />
-              </UserLayout>
-            }
-          />
+          <Route path='/*' element={<ProductProviderRoutes />} />
           <Route path='/exp' element={<ExperimentPage />}></Route>
         </Routes>
       )}

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { determineRoute } from '../utils/helpers'
 
 const Login = () => {
-  const { login } = useContext(AuthContext)
+  const { login, prevUrl } = useContext(AuthContext)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [apiError, setApiError] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
@@ -25,10 +25,8 @@ const Login = () => {
         const result = await login(values.email, values.password)
         if (result.status === 200) {
           setSuccessMessage('Login successful.')
-          const route = determineRoute(result.data.user)
-          setTimeout(() => {
-            navigate(route)
-          }, 2000)
+          const route = prevUrl ? prevUrl : determineRoute(result.data.user)
+          navigate(route)
         }
       } catch (error) {
         setApiError(error.message || 'An error occurred')

@@ -55,6 +55,37 @@ export const ProductProvider = ({ children }) => {
     }
   }
 
+  const fetchDetailProduct = async (id) => {
+    setLoading(true)
+    setError(false)
+    try {
+      const res = await axiosInstance.get('/products/detail', {
+        params: { id },
+      })
+      return res
+    } catch (error) {
+      setError(error)
+      setLoading(false)
+    }
+  }
+
+  const sendToWishlist = async (prodId) => {
+    const res = await axiosInstance.post('/products/wishlist', {
+      product_id: prodId,
+    })
+    return res
+  }
+
+  const fetchWishlist = async (id) => {
+    const res = await axiosInstance.get('/wishlist', {
+      params: {
+        id,
+      },
+    })
+    console.log('halo')
+    return res.data
+  }
+
   useEffect(() => {
     const newQueryItem = {
       ...queryItem,
@@ -63,13 +94,18 @@ export const ProductProvider = ({ children }) => {
     fetchProducts(page, newQueryItem, search, true)
   }, [])
 
-  // const searchFetchProducts = async (query) => {
-  //   const response = await axiosInstance.get('/products')
-  // }
-
   return (
     <ProductContext.Provider
-      value={{ product, isLoading, isError, fetchProducts, prodRec }}>
+      value={{
+        product,
+        isLoading,
+        isError,
+        fetchProducts,
+        prodRec,
+        fetchDetailProduct,
+        sendToWishlist,
+        fetchWishlist,
+      }}>
       {children}
     </ProductContext.Provider>
   )

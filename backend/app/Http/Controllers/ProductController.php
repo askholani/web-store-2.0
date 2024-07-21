@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Validator;
 use App\Models\Product;
+use App\Models\Wishlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -60,6 +65,97 @@ class ProductController extends Controller
     return response()->json($products);
   }
 
+  public function detail(Request $req)
+  {
+    $validated = $req->validate([
+      'id' => 'integer|min:1'
+    ]);
+    $id = $req->query('id', null);
+    $prodDetail = null;
+    if ($id) {
+      $prodDetail = Product::with('details')->where('id', $id)->first();
+    }
+
+    return response()->json($prodDetail);
+  }
+
+  public function sendToWishlist(Request $request)
+  {
+    $user = Auth::user();
+
+    if (!$user) {
+      return response()->json(['message' => 'User not authenticated'], 401);
+    }
+
+    $validator = Validator::make($request->all(), [
+      'product_id' => 'required|integer',
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json($validator->errors(), 422);
+    }
+
+    $productId = $request->input('product_id');
+
+    try {
+      DB::beginTransaction();
+      $product = Product::find($productId);
+
+      $wishlist = Wishlist::where('product_id', $product->id)->where('user_id', $user->id)->first();
+      if ($wishlist) {
+        $product->decrement('likes');
+        $wishlist->delete();
+        DB::commit();
+        return response()->json(['message' => 'wishlist updated successfully', 'wishlist' => null, 'product' => $product], 200);
+      } else {
+        $product->increment('likes');
+        $wishlist = Wishlist::create([
+          'product_id' => $product->id,
+          'user_id' => $user->id,
+        ]);
+        DB::commit();
+        return response()->json(['message' => 'wishlist updated successfully', 'wishlist' => $wishlist, 'product' => $product], 200);
+      }
+    } catch (\Exception $e) {
+      DB::rollBack();
+      Log::error('Failed to add product to wishlist: ' . $e->getMessage());
+
+      return response()->json(['message' => 'Failed to add to wishlist'], 500);
+    }
+  }
+
+  public function getWishlist(Request $req)
+  {
+    $user = Auth::user();
+
+    if (!$user) {
+      return response()->json(['message' => 'User not authenticated'], 401);
+    }
+
+    $validator = Validator::make($req->all(), [
+      'id' => 'integer'
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    $id = $req->query('id');
+    if (!$id) {
+      $wishlists = Wishlist::where('user_id', $user->id)->paginate(6);
+      return response()->json($wishlists);
+    } else {
+      $wishlist = Wishlist::where('user_id', $user->id)->where('product_id', $id)->first();
+      if (!$wishlist) {
+        return response(null);
+      }
+      return response()->json($wishlist);
+    }
+  }
+
+  public function sendToChart(Request $req)
+  {
+  }
 
   /**
    * Store a newly created resource in storage.

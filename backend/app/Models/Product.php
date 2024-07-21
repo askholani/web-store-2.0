@@ -16,4 +16,9 @@ class Product extends Model
   {
     return $this->hasMany(ProductDetail::class);
   }
+
+  public function wishtlists()
+  {
+    return $this->hasMany(WIshlist::class);
+  }
 }

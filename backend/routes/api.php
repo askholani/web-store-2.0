@@ -11,13 +11,17 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+
 Route::middleware('checkAuth')->group(function () {
   Route::get('/profile', [AuthController::class, 'profile']);
   Route::get('/resend', [AuthController::class, 'resend']);
   Route::post('/me', [AuthController::class, 'me']);
   Route::post('/verify', [AuthController::class, 'verify']);
   Route::post('/profile/complete', [AuthController::class, 'completeProfile']);
+  Route::post('products/wishlist', [ProductController::class, 'sendToWishlist']);
+  Route::get('/wishlist', [ProductController::class, 'getWishlist']);
 });
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/detail', [ProductController::class, 'detail']);
 Route::get('/images', [AuthController::class, 'getImages']);
 Route::post('/images/store', [AuthController::class, 'storeNewProduct']);

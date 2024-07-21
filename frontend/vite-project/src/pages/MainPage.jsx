@@ -6,8 +6,14 @@ import Sort from '../components/Sort'
 import SearchComp from '../components/Search/SearchComp'
 
 const MainPage = () => {
-  const { isLoading, isError, product, fetchProducts, prodRec } =
-    useContext(ProductContext)
+  const {
+    isLoading,
+    isError,
+    product,
+    fetchProducts,
+    prodRec,
+    paramPageChange,
+  } = useContext(ProductContext)
 
   return (
     <main className='px-1 py-4 flex flex-col gap-y-8 mb-16'>
@@ -50,6 +56,7 @@ const MainPage = () => {
         isLoading={isLoading}
         isError={isError}
         onFetchProducts={fetchProducts}
+        paramPageChange={paramPageChange}
       />
     </main>
   )

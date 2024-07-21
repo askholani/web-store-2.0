@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import Product from './Product'
 import Pagination from '../Pagination'
 import { convertSort, useQuery, useQueryItem } from '../../utils/helpers'
 
 const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
-  // console.log('products', products)
   const navigate = useNavigate()
   const queryItem = useQueryItem()
   const query = useQuery()
   const search = query.get('search')
+  const location = useLocation()
 
   const handlePageChange = (page) => {
     const { category, sort, order } = queryItem
@@ -52,6 +52,14 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
     }
   }, [products])
 
+  const handleDetailPage = (id, name) => {
+    const path = `${location.pathname}${location.search}`
+    const page = query.get('page') ?? 1
+    localStorage.setItem('page', page)
+    localStorage.setItem('path', path)
+    navigate(`/product/${id}-${name}`)
+  }
+
   if (isLoading || !data) {
     return (
       <div className='flex justify-around flex-wrap gap-y-4'>
@@ -80,7 +88,12 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
     <section className='flex flex-col gap-y-4'>
       <div className='flex justify-around flex-wrap gap-y-4'>
         {data.map((value) => (
-          <Product key={value.id} value={value} />
+          <div
+            className='relative w-1/2'
+            key={value.id}
+            onClick={() => handleDetailPage(value.id, value.name)}>
+            <Product key={value.id} value={value} />
+          </div>
         ))}
       </div>
       <Pagination

@@ -10,12 +10,16 @@ import LoaderPage from './pages/LoaderPage'
 import { useEffect, useState } from 'react'
 import ExperimentPage from './pages/ExperimentPage'
 import ProductProviderRoutes from './routes/ProductProviderRoutes'
+import { useQuery } from './utils/helpers'
 
 function App() {
+  const query = useQuery()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const location = useLocation()
   const path = location.pathname
+
+  const state = query.get('state')
 
   useEffect(() => {
     const handleStart = () => setLoading(true)
@@ -27,10 +31,11 @@ function App() {
     return () => clearTimeout(timeout)
   }, [path])
 
-  if (location.pathname === '/') {
-    navigate('/product')
-    return
-  }
+  useEffect(() => {
+    if (location.pathname === '/' && state !== 'true') {
+      navigate('/product')
+    }
+  }, [location, navigate, state])
 
   return (
     <>

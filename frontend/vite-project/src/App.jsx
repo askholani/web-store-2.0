@@ -42,18 +42,22 @@ function App() {
       {loading && <LoaderPage />}
       {!loading && (
         <Routes>
-          <Route path='/register' element={<RegisterPage />}></Route>
-          <Route path='/login' element={<LoginPage />}></Route>
+          <Route path='/register' element={<RegisterPage />} />
+          <Route path='/login' element={<LoginPage />} />
           <Route
             path='/verification'
-            element={<ProtectedRoute element={<VerificationPage />} />}></Route>
+            element={<ProtectedRoute element={<VerificationPage />} />}
+          />
+
           <Route
             path='/profile'
             element={
               <ProtectedRoute element={<ProfilePage />}></ProtectedRoute>
-            }></Route>
+            }
+          />
+
           <Route path='/*' element={<ProductProviderRoutes />} />
-          <Route path='/exp' element={<ExperimentPage />}></Route>
+          <Route path='/exp' element={<ExperimentPage />} />
         </Routes>
       )}
     </>

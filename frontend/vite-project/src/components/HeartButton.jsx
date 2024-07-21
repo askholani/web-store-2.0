@@ -13,6 +13,8 @@ const HeartButton = ({ onHandleWishlist, id, wishlistData }) => {
   useEffect(() => {
     setWishlist(wishlistData)
   }, [wishlistData])
+  console.log('wishlistData', wishlistData)
+  console.log('wishlist', wishlist)
 
   const handleWishlist = async () => {
     if (!user) {

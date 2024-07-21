@@ -142,13 +142,15 @@ class ProductController extends Controller
 
     $id = $req->query('id');
     if (!$id) {
-      $wishlists = Wishlist::where('user_id', $user->id)->paginate(6);
+      $wishlists = Wishlist::with(['product', 'product.details'])->where('user_id', $user->id)->paginate(6);
       return response()->json($wishlists);
     } else {
       $wishlist = Wishlist::where('user_id', $user->id)->where('product_id', $id)->first();
       if (!$wishlist) {
+        // return response('hai');
         return response(null);
       }
+      // return response('hallo');
       return response()->json($wishlist);
     }
   }

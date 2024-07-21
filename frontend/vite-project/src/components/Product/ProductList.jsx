@@ -8,8 +8,9 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
   const navigate = useNavigate()
   const queryItem = useQueryItem()
   const query = useQuery()
-  const search = query.get('search')
   const location = useLocation()
+
+  const search = query.get('search')
 
   const handlePageChange = (page) => {
     const { category, sort, order } = queryItem
@@ -92,7 +93,7 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
             className='relative w-1/2'
             key={value.id}
             onClick={() => handleDetailPage(value.id, value.name)}>
-            <Product key={value.id} value={value} />
+            <Product key={value.id} value={value} wishlist={false} />
           </div>
         ))}
       </div>

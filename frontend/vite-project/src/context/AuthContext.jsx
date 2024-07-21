@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [isPending, setPending] = useState(true)
   const [prevUrl, setPrevUrl] = useState('')
 
-  const setPrevUrlChanges = (url) => {
+  const previousUrl = ({ url }) => {
     setPrevUrl(url)
   }
 
@@ -126,7 +126,7 @@ export const AuthProvider = ({ children }) => {
         getNewProduct,
         storeNewProduct,
         prevUrl,
-        setPrevUrlChanges,
+        previousUrl,
       }}>
       {children}
     </AuthContext.Provider>

@@ -58,3 +58,5 @@ location page
 loader component
 RestFull API : 
 post on completeProfile to put
+
+optimize handlePageChange in ProductList

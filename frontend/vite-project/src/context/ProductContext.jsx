@@ -76,14 +76,24 @@ export const ProductProvider = ({ children }) => {
     return res
   }
 
-  const fetchWishlist = async (id) => {
-    const res = await axiosInstance.get('/wishlist', {
-      params: {
-        id,
-      },
-    })
-    console.log('halo')
-    return res.data
+  const fetchWishlist = async ({ id = null, user, page = 1 }) => {
+    let res = ''
+    if (id) {
+      res = await axiosInstance.get('/wishlist', {
+        params: {
+          id,
+        },
+      })
+    } else {
+      res = await axiosInstance.get('wishlist', {
+        params: {
+          user_id: user.id,
+          page,
+        },
+      })
+    }
+
+    return res
   }
 
   useEffect(() => {

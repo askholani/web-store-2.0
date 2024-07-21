@@ -42,7 +42,7 @@ const ProductDetail = () => {
 
         let wishlist = ''
         if (user) {
-          wishlist = await fetchWishlist(id)
+          wishlist = await fetchWishlist({ id })
         }
 
         let altData = null
@@ -92,7 +92,7 @@ const ProductDetail = () => {
           <HeartButton
             onHandleWishlist={handleWishlist}
             id={id}
-            wishlistData={wishlist}
+            wishlistData={wishlist ? wishlist.data : null}
           />
         </div>
         <div className='absolute top-16 left-0 right-0 min-h-[490px] bg-slate-200'>

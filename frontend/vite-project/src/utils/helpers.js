@@ -56,3 +56,10 @@ export const deConvertSort = (sort) => {
   }
   return newSort
 }
+
+export const pageChange = ({ pathTo, location }) => {
+  const prevPath = `${location.pathname}${location.search}`
+  const nextPath = `/${pathTo}`
+
+  return { prevPath, nextPath }
+}

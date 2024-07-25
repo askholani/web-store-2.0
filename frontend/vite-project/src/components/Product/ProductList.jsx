@@ -1,18 +1,29 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Product from './Product'
 import Pagination from '../Pagination'
-import { convertSort, useQuery, useQueryItem } from '../../utils/helpers'
+import {
+  convertSort,
+  pageChange,
+  useQuery,
+  useQueryItem,
+} from '../../utils/helpers'
+import LoaderFetching from '../LoaderFetching'
+import AuthContext from '../../context/AuthContext'
+import ProductContext from '../../context/ProductContext'
 
-const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
+const ProductList = ({ products, isLoading, isError, onHandlePage }) => {
+  const { fetchProducts } = useContext(ProductContext)
+  console.log('products', products)
   const navigate = useNavigate()
   const queryItem = useQueryItem()
   const query = useQuery()
   const location = useLocation()
+  const { previousUrl } = useContext(AuthContext)
 
   const search = query.get('search')
 
-  const handlePageChange = (page) => {
+  const handlePageChange = async (page) => {
     const { category, sort, order } = queryItem
     let currPage = ''
 
@@ -43,7 +54,15 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
       ...queryItem,
       sort: convertSort(queryItem.sort),
     }
-    onFetchProducts(page, newQueryItem, search, true)
+    const data = {
+      pageData: page,
+      query: newQueryItem,
+      search,
+      press: true,
+    }
+    const rest = await fetchProducts(data)
+    console.log('rest', rest)
+    onHandlePage(rest.products)
   }
 
   const [data, setData] = useState(new Array(4))
@@ -53,56 +72,40 @@ const ProductList = ({ products, isLoading, isError, onFetchProducts }) => {
     }
   }, [products])
 
-  const handleDetailPage = (id, name) => {
-    const path = `${location.pathname}${location.search}`
-    const page = query.get('page') ?? 1
-    localStorage.setItem('page', page)
-    localStorage.setItem('path', path)
-    navigate(`/product/${id}-${name}`)
-  }
-
-  if (isLoading || !data) {
-    return (
-      <div className='flex justify-around flex-wrap gap-y-4'>
-        {data.map((val, index) => (
-          <div key={index} className='relative w-1/2'>
-            <div className='bg-slate-50 w-8 h-8 absolute top-2 right-6 flex justify-center items-center rounded-full'>
-              <i className='fas fa-heart text-lg'></i>
-            </div>
-            <div className='rounded-md'>
-              <img src={''} alt='' className='w-40 h-40 object-cover' />
-            </div>
-            <div className='flex flex-col gap-y-1 font-semibold text-start px-1'>
-              <span className='line-clamp-1'>{''}</span>
-              <span>Rp {''}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    )
+  const handleDetailPage = ({ id, name }) => {
+    const path = `product/${id}-${name}`
+    const page = pageChange({ pathTo: path, location })
+    previousUrl({ url: page.prevPath })
+    localStorage.setItem('prevUrl', page.prevPath)
+    navigate(page.nextPath)
   }
 
   if (isError) {
     return <div>{isError}</div>
   }
   return (
-    <section className='flex flex-col gap-y-4'>
-      <div className='flex justify-around flex-wrap gap-y-4'>
-        {data.map((value) => (
-          <div
-            className='relative w-1/2'
-            key={value.id}
-            onClick={() => handleDetailPage(value.id, value.name)}>
-            <Product key={value.id} value={value} wishlist={false} />
+    <>
+      {isLoading && <LoaderFetching />}
+      {!isLoading && (
+        <section className='flex flex-col gap-y-4'>
+          <div className='flex justify-around flex-wrap gap-y-4'>
+            {data.map((value) => (
+              <div
+                className='relative w-1/2'
+                key={value.id}
+                onClick={() => handleDetailPage(value)}>
+                <Product key={value.id} value={value} wishlist={false} />
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <Pagination
-        onPageChange={handlePageChange}
-        currentPage={products.current_page}
-        lastPage={products.last_page}
-      />
-    </section>
+          <Pagination
+            onPageChange={handlePageChange}
+            currentPage={products.current_page}
+            lastPage={products.last_page}
+          />
+        </section>
+      )}
+    </>
   )
 }
 

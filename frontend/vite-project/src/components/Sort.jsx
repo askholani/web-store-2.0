@@ -1,51 +1,42 @@
-import { useState, useContext } from 'react'
-import { useQueryItem, convertSort, deConvertSort } from '../utils/helpers'
+import { useContext, useState } from 'react'
+import { useQueryItem, deConvertSort, handleSortPage } from '../utils/helpers'
 import { useLocation, useNavigate } from 'react-router-dom'
-import ProductContext from '../context/ProductContext'
+import AuthContext from '../context/AuthContext'
 
 let order = true
 
-const Sort = () => {
-  const { fetchProducts } = useContext(ProductContext)
+const Sort = ({ onHandleSort, fetchData }) => {
   const queryItem = useQueryItem()
   const location = useLocation()
   const navigate = useNavigate()
 
+  const { user } = useContext(AuthContext)
   const { category: paramCategory, sort: paramSort } = queryItem
 
   const [sort, setSort] = useState(() => {
     return deConvertSort(paramSort)
   })
 
-  const handleSort = (newSort) => {
+  const handleSort = async (newSort) => {
     if (newSort === sort) {
       order = !order
     } else {
       order = true
     }
-    handlePageChange(newSort, order ? 'asc' : 'desc')
-    setSort(newSort)
-  }
 
-  const handlePageChange = (sort, order) => {
-    let sortData = convertSort(sort)
-    let newPath = ''
-    if (paramCategory) {
-      newPath =
-        location.pathname +
-        `?page=1` +
-        `&category=${paramCategory}&sort=${sort}&order=${order}`
-    } else {
-      newPath =
-        location.pathname + `?page=1` + `&sort=${sortData}&order=${order}`
-    }
-    navigate(newPath)
-    const newQueryItem = {
-      ...queryItem,
-      sort: sortData,
-      order: order,
-    }
-    fetchProducts(1, newQueryItem)
+    setSort(newSort)
+    const rest = await handleSortPage({
+      location,
+      navigate,
+      sort: newSort,
+      order: order ? 'asc' : 'desc',
+      paramCategory,
+      fetchData: fetchData,
+      queryItem,
+      user,
+    })
+
+    onHandleSort(rest)
   }
 
   return (

@@ -1,33 +1,18 @@
-import { createContext, useEffect, useState } from 'react'
+import { createContext } from 'react'
 import axiosInstance from '../api/axiosAuth'
 
-import { convertSort, useQuery, useQueryItem } from '../utils/helpers'
+import { cartSchema, useQuery, validateData } from '../utils/helpers'
 
 const ProductContext = createContext()
 
 export const ProductProvider = ({ children }) => {
   const query = useQuery()
-
-  const [prodRec, setProdRec] = useState(null)
-  const [product, setProduct] = useState(null)
-  const [isLoading, setLoading] = useState(true)
-  const [isError, setError] = useState(false)
-
   const page = query.get('page')
-  const search = query.get('search')
-  const queryItem = useQueryItem()
 
-  const fetchProducts = async (
-    pageData,
-    query,
-    search = null,
-    press = false,
-    perPage = 6,
-  ) => {
+  const fetchProducts = async (data) => {
+    const { pageData, query, search = null, press = false, perPage = 6 } = data
     const { order, category, sort } = query
     const pageNum = pageData ?? page
-    setLoading(true)
-    setError(false)
 
     try {
       let response = null
@@ -36,36 +21,42 @@ export const ProductProvider = ({ children }) => {
           params: { search, page: pageNum, press },
         })
         if (press) {
-          setProdRec(null)
-          setProduct(response.data)
+          return {
+            prodRec: null,
+            products: response.data,
+          }
         } else {
-          setProdRec(response.data)
+          return {
+            prodRec: response.data,
+            products: null,
+          }
         }
       } else {
         response = await axiosInstance.get('/products', {
           params: { page: pageNum, perPage, category, order, sort },
         })
-        setProduct(response.data)
+        return {
+          prodRec: null,
+          products: response.data,
+        }
       }
-
-      setLoading(false)
     } catch (err) {
-      setError(err)
-      setLoading(false)
+      return {
+        prodRec: null,
+        products: null,
+        message: err,
+      }
     }
   }
 
   const fetchDetailProduct = async (id) => {
-    setLoading(true)
-    setError(false)
     try {
       const res = await axiosInstance.get('/products/detail', {
         params: { id },
       })
       return res
     } catch (error) {
-      setError(error)
-      setLoading(false)
+      return error
     }
   }
 
@@ -76,7 +67,11 @@ export const ProductProvider = ({ children }) => {
     return res
   }
 
-  const fetchWishlist = async ({ id = null, user, page = 1 }) => {
+  // const fetchWishlist = async ({ id = null, user, page = 1 }) => {
+  const fetchWishlist = async (data) => {
+    const { id = null, user, page = 1, query = null } = data
+    const sort = query !== null ? query.sort : null
+    const order = query !== null ? query.order : null
     let res = ''
     if (id) {
       res = await axiosInstance.get('/wishlist', {
@@ -84,11 +79,14 @@ export const ProductProvider = ({ children }) => {
           id,
         },
       })
+      // getAll data on WishlistComp
     } else {
       res = await axiosInstance.get('wishlist', {
         params: {
           user_id: user.id,
           page,
+          order,
+          sort,
         },
       })
     }
@@ -96,25 +94,39 @@ export const ProductProvider = ({ children }) => {
     return res
   }
 
-  useEffect(() => {
-    const newQueryItem = {
-      ...queryItem,
-      sort: convertSort(queryItem.sort),
+  const sendToCart = async (data) => {
+    const { valid, error } = await validateData(data, cartSchema)
+
+    if (!valid) {
+      return { success: false, error }
     }
-    fetchProducts(page, newQueryItem, search, true)
-  }, [])
+
+    try {
+      const res = await axiosInstance.post('/cart/store', data)
+      return { success: true, data: res.data.message }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const fetchCarts = async () => {
+    try {
+      const res = await axiosInstance.get('/cart')
+      return { success: true, cart: res.data }
+    } catch (error) {
+      return { success: false, cart: null }
+    }
+  }
 
   return (
     <ProductContext.Provider
       value={{
-        product,
-        isLoading,
-        isError,
         fetchProducts,
-        prodRec,
         fetchDetailProduct,
         sendToWishlist,
         fetchWishlist,
+        sendToCart,
+        fetchCarts,
       }}>
       {children}
     </ProductContext.Provider>

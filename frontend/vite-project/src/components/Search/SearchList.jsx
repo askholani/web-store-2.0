@@ -6,7 +6,7 @@ const SearcList = ({ prodRec, search, searching }) => {
     <div className='relative'>
       {!searching && search.length > 0 && prodRec && (
         <div className='bg-slate-50 w-full absolute border border-slate-200 rounded-md flex flex-col text-start gap-y-1'>
-          {prodRec.data.map((value, ind) => {
+          {prodRec.map((value, ind) => {
             return (
               <span
                 key={`${value.name} ${ind}`}

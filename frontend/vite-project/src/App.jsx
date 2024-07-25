@@ -15,19 +15,15 @@ import { useQuery } from './utils/helpers'
 function App() {
   const query = useQuery()
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
   const location = useLocation()
   const path = location.pathname
 
   const state = query.get('state')
 
   useEffect(() => {
-    const handleStart = () => setLoading(true)
     const handleComplete = () => setLoading(false)
-
-    handleStart()
     const timeout = setTimeout(handleComplete, 1000) // Adjust timeout as needed
-
     return () => clearTimeout(timeout)
   }, [path])
 
@@ -37,29 +33,27 @@ function App() {
     }
   }, [location, navigate, state])
 
+  if (loading) {
+    return <LoaderPage />
+  }
+
   return (
     <>
-      {loading && <LoaderPage />}
-      {!loading && (
-        <Routes>
-          <Route path='/register' element={<RegisterPage />} />
-          <Route path='/login' element={<LoginPage />} />
-          <Route
-            path='/verification'
-            element={<ProtectedRoute element={<VerificationPage />} />}
-          />
+      <Routes>
+        <Route path='/register' element={<RegisterPage />} />
+        <Route path='/login' element={<LoginPage />} />
+        <Route
+          path='/verification'
+          element={<ProtectedRoute element={<VerificationPage />} />}
+        />
+        <Route
+          path='/profile'
+          element={<ProtectedRoute element={<ProfilePage />}></ProtectedRoute>}
+        />
 
-          <Route
-            path='/profile'
-            element={
-              <ProtectedRoute element={<ProfilePage />}></ProtectedRoute>
-            }
-          />
-
-          <Route path='/*' element={<ProductProviderRoutes />} />
-          <Route path='/exp' element={<ExperimentPage />} />
-        </Routes>
-      )}
+        <Route path='/*' element={<ProductProviderRoutes />} />
+        <Route path='/exp' element={<ExperimentPage />} />
+      </Routes>
     </>
   )
 }

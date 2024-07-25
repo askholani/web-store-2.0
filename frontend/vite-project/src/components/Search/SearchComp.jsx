@@ -1,10 +1,13 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useContext } from 'react'
 import _ from 'lodash'
 import { convertSort, useQuery, useQueryItem } from '../../utils/helpers'
 import SearcList from './SearchList'
 import { useLocation, useNavigate } from 'react-router-dom'
+import ProductContext from '../../context/ProductContext'
 
-const SearchComp = ({ onFetchProducts, isLoading, isError, prodRec }) => {
+const SearchComp = ({ onHandleSearch }) => {
+  const [prodRec, setProdRec] = useState(null)
+  const { fetchProducts } = useContext(ProductContext)
   const query = useQuery()
   const queryItem = useQueryItem()
   const [value, setValue] = useState('')
@@ -19,10 +22,19 @@ const SearchComp = ({ onFetchProducts, isLoading, isError, prodRec }) => {
 
   const page = query.get('page')
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = async (e) => {
     if (e.key === 'Enter') {
       setSearching(true)
-      onFetchProducts(page, newQueryItem, value, true)
+      const data = {
+        pageData: page,
+        query: newQueryItem,
+        search: value,
+        press: true,
+      }
+      const rest = await fetchProducts(data)
+      console.log('rest', rest)
+      // onFetchProducts(page, newQueryItem, value, true)
+      onHandleSearch(rest.products)
       navigate(`${location.pathname}?search=${value}`)
     }
   }
@@ -36,8 +48,15 @@ const SearchComp = ({ onFetchProducts, isLoading, isError, prodRec }) => {
   }
 
   const debouncedFetchResults = useCallback(
-    _.debounce((searchQuery) => {
-      onFetchProducts(page, newQueryItem, searchQuery, searching)
+    _.debounce(async (searchQuery) => {
+      const data = {
+        pageData: page,
+        query: newQueryItem,
+        search: searchQuery,
+        press: searching,
+      }
+      const rest = await fetchProducts(data)
+      setProdRec(rest.prodRec.data)
     }, 500),
     [],
   )

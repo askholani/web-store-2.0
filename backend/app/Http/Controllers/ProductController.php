@@ -133,7 +133,11 @@ class ProductController extends Controller
     }
 
     $validator = Validator::make($req->all(), [
-      'id' => 'integer'
+      'id' => 'integer',
+      'page' => 'integer|nullable',
+      'sort' => 'string|nullable',
+      'sortBy' => 'string|in:asc,desc|nullable',
+      'search' => 'string|nullable',
     ]);
 
     if ($validator->fails()) {
@@ -141,16 +145,30 @@ class ProductController extends Controller
     }
 
     $id = $req->query('id');
+    $page = $req->query('page', 1);
+    $sort = $req->query('sort', 'created_at');
+    $order = $req->query('order', 'asc');
+    $sortBy = $req->query('sortBy', $order);
+
     if (!$id) {
-      $wishlists = Wishlist::with(['product', 'product.details'])->where('user_id', $user->id)->paginate(6);
+      $query = Wishlist::with(['product', 'product.details'])
+        ->whereHas('product', function ($query) use ($user) {
+          $query->where('user_id', $user->id);
+        });
+
+      if ($sort !== 'all') {
+        $query->orderBy(Product::select($sort)
+          ->whereColumn('products.id', 'wishlists.product_id')
+          ->take(1), $sortBy);
+      }
+      $wishlists = $query->paginate(6, ['*'], 'page', $page);
+
       return response()->json($wishlists);
-    } else {
+    } else { // when user reload happened on DetailPage so check the product included wishlist
       $wishlist = Wishlist::where('user_id', $user->id)->where('product_id', $id)->first();
       if (!$wishlist) {
-        // return response('hai');
         return response(null);
       }
-      // return response('hallo');
       return response()->json($wishlist);
     }
   }

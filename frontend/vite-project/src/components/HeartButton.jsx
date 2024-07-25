@@ -5,7 +5,7 @@ import ProductContext from '../context/ProductContext'
 
 const HeartButton = ({ onHandleWishlist, id, wishlistData }) => {
   const [wishlist, setWishlist] = useState(null)
-  const { user, setPrevUrlChanges } = useContext(AuthContext)
+  const { user, previousUrl } = useContext(AuthContext)
   const { sendToWishlist } = useContext(ProductContext)
   const navigate = useNavigate()
   const location = useLocation()
@@ -13,16 +13,16 @@ const HeartButton = ({ onHandleWishlist, id, wishlistData }) => {
   useEffect(() => {
     setWishlist(wishlistData)
   }, [wishlistData])
-  console.log('wishlistData', wishlistData)
-  console.log('wishlist', wishlist)
 
   const handleWishlist = async () => {
     if (!user) {
       navigate('/login?state=true')
-      setPrevUrlChanges(location.pathname)
+      previousUrl(location.pathname)
     }
     const result = await sendToWishlist(id)
-    onHandleWishlist(result.data.product)
+    console.log('result', result)
+    // onHandleWishlist(result.data.product)
+    onHandleWishlist({ prod: result.data.product, wish: result.data.wishlist })
     setWishlist(result.data.wishlist)
   }
   return (

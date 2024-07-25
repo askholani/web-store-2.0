@@ -1,14 +1,10 @@
 import PropTypes from 'prop-types'
 import { createContext, useState, useEffect } from 'react'
 import axiosInstance, { axiosInstanceFile } from '../api/axiosAuth'
-import { useLocation } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
-import { determineRoute } from '../utils/helpers'
 
 const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
-  const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [isPending, setPending] = useState(true)
   const [prevUrl, setPrevUrl] = useState('')
@@ -20,7 +16,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (token) {
-      // console.log('hallo')
       axiosInstance
         .post('/me')
         .then((response) => {
@@ -35,15 +30,6 @@ export const AuthProvider = ({ children }) => {
       setPending(false)
     }
   }, [])
-
-  const location = useLocation()
-  const currentUrl = location.pathname
-  if (user && currentUrl === '/login') {
-    const path = determineRoute(user)
-    setTimeout(() => {
-      navigate(path)
-    }, 0)
-  }
 
   const login = async (email, password) => {
     const response = await axiosInstance.post('/login', { email, password })

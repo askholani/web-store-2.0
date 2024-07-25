@@ -23,11 +23,11 @@ const BottomNav = () => {
           <i className='fas fa-home text-xl'></i>
         </div>
       </a>
-      <a href='#'>
+      <div onClick={() => handlePageChange({ path: 'cart' })}>
         <div className='rounded-full bg-slate-50 w-12 h-12 flex justify-center items-center'>
           <i className='fas fa-shopping-bag text-xl'></i>
         </div>
-      </a>
+      </div>
       <div onClick={() => handlePageChange({ path: 'wishlist' })}>
         <div className='rounded-full bg-slate-50 w-12 h-12 flex justify-center items-center'>
           <i className='fas fa-heart text-xl'></i>

@@ -59,4 +59,10 @@ loader component
 RestFull API : 
 post on completeProfile to put
 
-optimize handlePageChange in ProductList
+note : must do but leter
+- optimize fetchProducts in productContext (SearchComp)
+- 
+
+progress : 
+backarrow 
+cart button

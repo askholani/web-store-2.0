@@ -22,7 +22,7 @@ const categories = [
   },
 ]
 
-const Category = () => {
+const Category = ({ onHandleCategory }) => {
   const { fetchProducts } = useContext(ProductContext)
   const queryItem = useQueryItem()
   const location = useLocation()
@@ -36,7 +36,7 @@ const Category = () => {
     handlePageChange(newCategory)
   }
 
-  const handlePageChange = (category) => {
+  const handlePageChange = async (category) => {
     let newPath = ''
     if (paramSort) {
       newPath =
@@ -52,8 +52,13 @@ const Category = () => {
       category,
       sort: convertSort(queryItem.sort),
     }
+    const data = {
+      pageData: 1,
+      query: newQueryItem,
+    }
+    const rest = await fetchProducts(data)
     navigate(newPath)
-    fetchProducts(1, newQueryItem)
+    onHandleCategory(rest.products)
   }
 
   return (

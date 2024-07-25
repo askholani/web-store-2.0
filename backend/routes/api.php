@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +19,14 @@ Route::middleware('checkAuth')->group(function () {
   Route::post('/me', [AuthController::class, 'me']);
   Route::post('/verify', [AuthController::class, 'verify']);
   Route::post('/profile/complete', [AuthController::class, 'completeProfile']);
-  Route::post('products/wishlist', [ProductController::class, 'sendToWishlist']);
+  Route::post('/products/wishlist', [ProductController::class, 'sendToWishlist']);
+
+  Route::prefix('/cart')->group(function () {
+    Route::post('/store', [CartController::class, 'store']);
+    Route::get('/', [CartController::class, 'index']);
+  });
+
+
   Route::get('/wishlist', [ProductController::class, 'getWishlist']);
 });
 Route::get('/products', [ProductController::class, 'index']);

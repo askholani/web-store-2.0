@@ -24,6 +24,7 @@ Route::middleware('checkAuth')->group(function () {
   Route::prefix('/cart')->group(function () {
     Route::post('/store', [CartController::class, 'store']);
     Route::get('/', [CartController::class, 'index']);
+    Route::delete('/{id}', [CartController::class, 'destroy']);
   });
 
 

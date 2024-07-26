@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Cart;
 use App\Models\Wishlist;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -31,7 +32,6 @@ class CartController extends Controller
       return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // $page = $req->input('page', 1); // get data from request body
     $page = $req->query('page', 1); // get data from query parameter
     $carts = Cart::with('product')->where('user_id', $user->id)->paginate(6, ['*'], 'page', $page);
     return response()->json($carts);
@@ -127,8 +127,29 @@ class CartController extends Controller
   /**
    * Remove the specified resource from storage.
    */
-  public function destroy(Cart $cart)
+  public function destroy(Request $req)
   {
-    //
+    $validator = Validator::make($req->all(), [
+      'id' => 'required|integer|exists:cart,id',
+    ]);
+
+
+    if ($validator->fails()) {
+      return response()->json(['errors' => $validator->errors()], 422);
+    }
+
+    try {
+      DB::beginTransaction();
+      $cart = Cart::findOrFail($req->id);
+      $cart->delete();
+      DB::commit();
+      return response()->json(['message' => 'Product deleted successfully'], 200);
+    } catch (ModelNotFoundException $e) {
+      DB::rollBack();
+      return response()->json(['message' => 'Product not found'], 404);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      return response()->json(['message' => 'An error occurred while deleting the product', 'error' => $e->getMessage()], 500);
+    }
   }
 }

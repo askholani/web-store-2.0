@@ -118,6 +118,15 @@ export const ProductProvider = ({ children }) => {
     }
   }
 
+  const deleteCart = async (id) => {
+    try {
+      const res = await axiosInstance.delete(`/cart/${id}`)
+      return { success: true, cart: res.data }
+    } catch (error) {
+      return { success: false, cart: null }
+    }
+  }
+
   return (
     <ProductContext.Provider
       value={{
@@ -127,6 +136,7 @@ export const ProductProvider = ({ children }) => {
         fetchWishlist,
         sendToCart,
         fetchCarts,
+        deleteCart,
       }}>
       {children}
     </ProductContext.Provider>

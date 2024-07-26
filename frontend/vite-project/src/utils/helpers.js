@@ -133,3 +133,9 @@ export const validateData = async (data, schema) => {
     return { valid: false, error }
   }
 }
+export const currencyFormat = ({ number, curr = 'IDR' }) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: curr,
+  }).format(number)
+}

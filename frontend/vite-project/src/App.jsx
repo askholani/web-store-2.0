@@ -1,31 +1,23 @@
 import './App.css'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import RegisterPage from './pages/Auth/RegisterPage'
 import '@fortawesome/fontawesome-free/css/all.min.css'
-import LoginPage from './pages/Auth/LoginPage'
-import VerificationPage from './pages/Auth/VerificationPage'
-import ProfilePage from './pages/ProgilePage'
 import ProtectedRoute from './components/ProtectedRoute'
 import LoaderPage from './pages/LoaderPage'
-import { useEffect, useState } from 'react'
-import ExperimentPage from './pages/ExperimentPage'
+import { lazy, Suspense, useEffect } from 'react'
 import ProductProviderRoutes from './routes/ProductProviderRoutes'
 import { useQuery } from './utils/helpers'
+
+const LoginPage = lazy(() => import('./pages/Auth/LoginPage'))
+const VerificationPage = lazy(() => import('./pages/Auth/VerificationPage'))
+const ProfilePage = lazy(() => import('./pages/ProgilePage'))
+const RegisterPage = lazy(() => import('./pages/Auth/RegisterPage'))
 
 function App() {
   const query = useQuery()
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(true)
   const location = useLocation()
-  const path = location.pathname
 
   const state = query.get('state')
-
-  useEffect(() => {
-    const handleComplete = () => setLoading(false)
-    const timeout = setTimeout(handleComplete, 1000) // Adjust timeout as needed
-    return () => clearTimeout(timeout)
-  }, [path])
 
   useEffect(() => {
     if (location.pathname === '/' && state !== 'true') {
@@ -33,27 +25,27 @@ function App() {
     }
   }, [location, navigate, state])
 
-  if (loading) {
-    return <LoaderPage />
-  }
-
   return (
     <>
-      <Routes>
-        <Route path='/register' element={<RegisterPage />} />
-        <Route path='/login' element={<LoginPage />} />
-        <Route
-          path='/verification'
-          element={<ProtectedRoute element={<VerificationPage />} />}
-        />
-        <Route
-          path='/profile'
-          element={<ProtectedRoute element={<ProfilePage />}></ProtectedRoute>}
-        />
+      <Suspense fallback={<LoaderPage />}>
+        <Routes>
+          <Route path='/register' element={<RegisterPage />} />
+          <Route path='/login' element={<LoginPage />} />
+          <Route
+            path='/verification'
+            element={<ProtectedRoute element={<VerificationPage />} />}
+          />
+          <Route
+            path='/profile'
+            element={
+              <ProtectedRoute element={<ProfilePage />}></ProtectedRoute>
+            }
+          />
 
-        <Route path='/*' element={<ProductProviderRoutes />} />
-        <Route path='/exp' element={<ExperimentPage />} />
-      </Routes>
+          <Route path='/*' element={<ProductProviderRoutes />} />
+          {/* <Route path='/exp' element={<ExperimentPage />} /> */}
+        </Routes>
+      </Suspense>
     </>
   )
 }

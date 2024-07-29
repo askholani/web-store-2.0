@@ -71,13 +71,11 @@ const WishlistPage = () => {
     navigate(page.nextPath)
   }
 
-  const url = prevUrl.length === 0 ? localStorage.getItem('prevUrl') : prevUrl
-
   return (
     <main className='px-2 py-4 flex flex-col gap-y-8'>
       <section className='flex items-center justify-center relative'>
         <Link
-          to={url}
+          to={'/product'}
           className='w-12 h-12 border border-slate-400 rounded-full flex justify-center items-center absolute left-0'>
           <i className='fas fa-arrow-left text-lg'></i>
         </Link>

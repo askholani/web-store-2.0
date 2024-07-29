@@ -6,7 +6,7 @@ import CartList from '../components/Cart/CartList'
 import CartPrice from '../components/Cart/CartPrice'
 
 const CartPage = () => {
-  const { prevUrl } = useContext(AuthContext)
+  const { prevUrl, user } = useContext(AuthContext)
   const { fetchCarts, deleteCart } = useContext(ProductContext)
   const fetchCartsRef = useRef(fetchCarts)
   const [carts, setCarts] = useState(null)
@@ -19,18 +19,22 @@ const CartPage = () => {
 
   useEffect(() => {
     let isMounted = true
-
     const handleFetchCart = async () => {
       const res = await fetchCartsRef.current()
       if (res && isMounted) {
         setIsLoading(false)
-        const costInitialData = res.cart.data.map((value) => ({
+        const costInitialData = res.cart.map((value) => ({
           count: value.count,
           price: value.product.price,
           id: value.id,
+          color: value.color,
+          product: value.product.id,
+          image: value.image,
+          size: value.size,
         }))
         setCost((prev) => ({ ...prev, total: costInitialData }))
       }
+      console.log('res', res)
       setCarts(res)
     }
 
@@ -42,7 +46,6 @@ const CartPage = () => {
   }, [])
 
   const handleProductCount = (data) => {
-    // console.log('data', data)
     setCost((prev) => {
       const existingProductIndex = prev.total.findIndex(
         (item) => item.id === data.id,
@@ -77,7 +80,7 @@ const CartPage = () => {
 
   const url = prevUrl.length === 0 ? localStorage.getItem('prevUrl') : prevUrl
   return (
-    <main className='px-2 py-4 flex flex-col gap-y-8'>
+    <main className='px-2 pt-4 flex flex-col gap-y-8 pb-48'>
       <section className='flex items-center justify-center relative'>
         <Link
           to={url}
@@ -92,7 +95,7 @@ const CartPage = () => {
         isLoading={isLoading}
         onHandleProductCount={handleProductCount}
       />
-      <CartPrice cost={cost} />
+      <CartPrice cost={cost} user={user} />
     </main>
   )
 }

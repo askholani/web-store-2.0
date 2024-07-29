@@ -1,7 +1,12 @@
 import { createContext } from 'react'
 import axiosInstance from '../api/axiosAuth'
 
-import { cartSchema, useQuery, validateData } from '../utils/helpers'
+import {
+  cartSchema,
+  orderSchema,
+  useQuery,
+  validateData,
+} from '../utils/helpers'
 
 const ProductContext = createContext()
 
@@ -90,7 +95,6 @@ export const ProductProvider = ({ children }) => {
         },
       })
     }
-
     return res
   }
 
@@ -118,12 +122,86 @@ export const ProductProvider = ({ children }) => {
     }
   }
 
+  const updateCart = async (items) => {
+    try {
+      const data = { items }
+      const res = await axiosInstance.post('/cart/update', data)
+      return { success: true, cart: res.data }
+    } catch (error) {
+      console.error('Error updating cart:', error.response.data)
+      return { success: false, cart: null }
+    }
+  }
+
   const deleteCart = async (id) => {
     try {
       const res = await axiosInstance.delete(`/cart/${id}`)
       return { success: true, cart: res.data }
     } catch (error) {
       return { success: false, cart: null }
+    }
+  }
+
+  const sendToOrder = async (data) => {
+    const { valid, error } = await validateData(data, orderSchema)
+    console.log('valid', valid)
+    console.log('data', data)
+    if (!valid) {
+      return { success: false, error }
+    }
+    try {
+      const res = await axiosInstance.post('/order/store', data)
+      return { success: true, data: res.data.message }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const fetchOrder = async () => {
+    try {
+      const res = await axiosInstance.get('/order')
+      return { success: true, order: res.data }
+    } catch (error) {
+      return { success: false, order: null }
+    }
+  }
+
+  const getStatusOrder = async ({ id, status }) => {
+    try {
+      const res = await axiosInstance.get(`/order/status`, {
+        params: { user: id, status },
+      })
+      return { success: true, data: res.data }
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        return { success: false, message: 'Order not found' }
+      } else {
+        return { success: false, message: err.message }
+      }
+    }
+  }
+
+  const fetchPaymentToken = async ({ items, customer, transaction }) => {
+    // console.log('transaction', transaction)
+    try {
+      const res = await axiosInstance.post('/order/payment/charge', {
+        items,
+        customer,
+        transaction,
+      })
+      return { success: true, data: res.data }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  const deleteOrder = async (id) => {
+    try {
+      // console.log(id)
+      const res = await axiosInstance.delete(`/order/${id}`)
+      return { success: true, data: res.data }
+    } catch (error) {
+      return { success: false, data: error.message }
     }
   }
 
@@ -137,6 +215,12 @@ export const ProductProvider = ({ children }) => {
         sendToCart,
         fetchCarts,
         deleteCart,
+        updateCart,
+        sendToOrder,
+        getStatusOrder,
+        fetchOrder,
+        fetchPaymentToken,
+        deleteOrder,
       }}>
       {children}
     </ProductContext.Provider>

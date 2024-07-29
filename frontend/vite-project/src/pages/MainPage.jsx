@@ -22,7 +22,6 @@ const MainPage = () => {
 
   useEffect(() => {
     const handleProductWishlist = async () => {
-      // setIsLoading(true)
       const newQueryItem = {
         ...querItemRef.current,
         sort: convertSort(querItemRef.current.sort),
@@ -33,7 +32,6 @@ const MainPage = () => {
       }
       try {
         const rest = await fetchProductsRef.current(data)
-        // console.log('rest', rest)
         setProducts(rest.products)
       } catch (err) {
         setIsError(err.message || 'An error occurred')

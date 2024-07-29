@@ -13,16 +13,9 @@ return new class extends Migration
   {
     Schema::create('carts', function (Blueprint $table) {
       $table->id();
-      $table->unsignedBigInteger('product_id');
-      $table->unsignedBigInteger('user_id');
-      $table->string('size');
-      $table->string('color');
-      $table->integer('count');
-      $table->string('image');
-      $table->softDeletes();
       $table->timestamps();
-
-      $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+      $table->softDeletes();
+      $table->unsignedBigInteger('user_id');
       $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
     });
   }

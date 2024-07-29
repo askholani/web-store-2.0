@@ -1,11 +1,14 @@
 import { Routes, Route } from 'react-router-dom'
 import { ProductProvider } from '../context/ProductContext'
-import MainPage from '../pages/MainPage'
-import ProductDetail from '../components/Product/ProductDetail'
 import UserLayout from '../layout/UserLayout'
-import WishlistPage from '../pages/WishlistPage'
 import ProtectedRoute from '../components/ProtectedRoute'
-import CartPage from '../pages/CartPage'
+import { lazy } from 'react'
+
+const MainPage = lazy(() => import('../pages/MainPage'))
+const WishlistPage = lazy(() => import('../pages/WishlistPage'))
+const ProductDetail = lazy(() => import('../components/Product/ProductDetail'))
+const CartPage = lazy(() => import('../pages/CartPage'))
+const CheckoutPage = lazy(() => import('../pages/CheckoutPage'))
 
 const ProductProviderRoutes = () => {
   return (
@@ -27,6 +30,10 @@ const ProductProviderRoutes = () => {
         <Route
           path='/cart'
           element={<ProtectedRoute element={<CartPage />} />}
+        />
+        <Route
+          path='/checkout'
+          element={<ProtectedRoute element={<CheckoutPage />} />}
         />
       </Routes>
     </ProductProvider>

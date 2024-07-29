@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\CartItems;
 use App\Models\Wishlist;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
@@ -16,7 +17,7 @@ class CartController extends Controller
   /**
    * Display a listing of the resource.
    */
-  public function index(Request $req)
+  public function index()
   {
     $user = Auth::user();
 
@@ -24,109 +25,106 @@ class CartController extends Controller
       return response()->json(['message' => 'User not authenticated'], 401);
     }
 
+    $cart = Cart::where('user_id', $user->id)->first();
+    if (!$cart) {
+      return response()->json(['message' => 'Cart not found'], 404);
+    }
+
+    $cartItems = CartItems::with('product')->where('cart_id', $cart->id)->get();
+
+    // $carts = Cart::with('items')->where('user_id', $user->id)->get();
+    return response()->json($cartItems);
+  }
+
+  public function update(Request $req)
+  {
     $validator = Validator::make($req->all(), [
-      'page' => 'integer|nullable',
+      'items' => 'required|array',
+      'items.*.id' => 'required|integer|exists:cart,id',
+      'items.*.count' => 'required|integer|min:1',
     ]);
 
     if ($validator->fails()) {
-      return response()->json(['errors' => $validator->errors()], 422);
+      return response()->json($validator->errors(), 400);
     }
-
-    $page = $req->query('page', 1); // get data from query parameter
-    $carts = Cart::with('product')->where('user_id', $user->id)->paginate(6, ['*'], 'page', $page);
-    return response()->json($carts);
-  }
-
-  /**
-   * Show the form for creating a new resource.
-   */
-  public function create()
-  {
-    //
-  }
-
-  /**
-   * Store a newly created resource in storage.
-   */
-  public function store(Request $req)
-  {
-    // Define validation rules
-    $validated = $req->validate([
-      'size' => 'required|string|max:255',
-      'color' => 'required|string|max:255',
-      'count' => 'required|integer|min:1',
-      'image' => 'required|string|max:255',
-      'wishlist' => 'nullable|integer', // Assumes wishlist id is optional and must exist in wishlists table
-      'product' => 'nullable|integer', // Assuming product is optional, you can adjust this based on your needs
-      'user' => 'nullable|integer',
-    ]);
 
     try {
       DB::beginTransaction();
 
-      $cart = Cart::where('product_id', $validated['product'])->where('user_id', $validated["user"])->first();
-
-      // return response()->json($cart);
-      if ($cart) {
-        if ($cart->color == $validated['color'] && $cart->size == $validated['size'] && $cart->image == $validated['image']) {
-          $cart->count = $cart->count + $validated['count'];
-          $cart->save();
-          DB::commit();
-          return response()->json(['message' => 'Product added successfully'], 200);
-        }
-      }
-
-
-      Cart::create([
-        'product_id' => $validated['product'],
-        'user_id' => $validated['user'],
-        'size' => $validated['size'],
-        'color' => $validated['color'],
-        'count' => $validated['count'],
-        'image' => $validated['image'],
-      ]);
-
-      // If wishlist is provided, delete the wishlist entry
-      if ($validated['wishlist']) {
-        Wishlist::where('product_id', $validated['wishlist'])->where('user_id', $validated['user'])->delete();
+      foreach ($req->input('items') as $item) {
+        $cart = Cart::find($item['id']);
+        $cart->count = $item['count'];
+        $cart->save();
       }
 
       DB::commit();
-
-      return response()->json(['message' => 'Product added successfully'], 200);
+      return response()->json(['message' => 'Cart updated successfully']);
     } catch (\Exception $e) {
       DB::rollBack();
-      Log::error('Failed to add product to cart: ' . $e->getMessage());
       return response()->json(['message' => $e->getMessage()], 500);
     }
   }
-  /**
-   * Display the specified resource.
-   */
-  public function show(Cart $cart)
-  {
-    //
-  }
 
-  /**
-   * Show the form for editing the specified resource.
-   */
-  public function edit(Cart $cart)
+  public function store(Request $request)
   {
-    //
-  }
+    $validated = $request->validate([
+      'size' => 'required|string|max:255',
+      'color' => 'required|string|max:255',
+      'count' => 'required|integer|min:1',
+      'image' => 'required|string|max:255',
+      'wishlist' => 'nullable|integer', // Validate wishlist id exists
+      'product' => 'nullable|integer', // Validate product id exists
+      'user' => 'nullable|integer', // Validate user id exists
+    ]);
 
-  /**
-   * Update the specified resource in storage.
-   */
-  public function update(Request $request, Cart $cart)
-  {
-    //
-  }
+    try {
+      // Start transaction
+      DB::beginTransaction();
 
-  /**
-   * Remove the specified resource from storage.
-   */
+      // If wishlist id is provided, delete the corresponding wishlist entry
+      if ($validated['wishlist']) {
+        Wishlist::where('product_id', $validated['wishlist'])
+          ->where('user_id', $validated['user'])
+          ->delete();
+      }
+
+      // Check if the user already has a cart
+      $cart = Cart::firstOrCreate(['user_id' => $validated['user']]);
+
+      // Check if the item already exists in the cart
+      $item = CartItems::where('cart_id', $cart->id)
+        ->where('product_id', $validated['product'])
+        ->where('color', $validated['color'])
+        ->where('size', $validated['size'])
+        ->where('image', $validated['image'])
+        ->first();
+
+      if ($item) {
+        // If item exists, update the count
+        $item->increment('count', $validated['count']);
+        $message = 'Product updated successfully';
+      } else {
+        CartItems::create([
+          'cart_id' => $cart->id,
+          'product_id' => $validated['product'],
+          'size' => $validated['size'],
+          'color' => $validated['color'],
+          'count' => $validated['count'],
+          'image' => $validated['image'],
+        ]);
+        $message = 'Product added successfully';
+      }
+
+      // Commit the transaction
+      DB::commit();
+      return response()->json(['message' => $message], 200);
+    } catch (\Exception $e) {
+      // Rollback the transaction in case of error
+      DB::rollBack();
+      Log::error('Failed to add product to cart: ' . $e->getMessage());
+      return response()->json(['message' => 'Failed to add product to cart'], 500);
+    }
+  }
   public function destroy(Request $req)
   {
     $validator = Validator::make($req->all(), [

@@ -14,7 +14,7 @@ import ProductContext from '../../context/ProductContext'
 
 const ProductList = ({ products, isLoading, isError, onHandlePage }) => {
   const { fetchProducts } = useContext(ProductContext)
-  console.log('products', products)
+  // console.log('products', products)
   const navigate = useNavigate()
   const queryItem = useQueryItem()
   const query = useQuery()

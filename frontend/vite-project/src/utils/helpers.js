@@ -121,6 +121,31 @@ export const cartSchema = Yup.object().shape({
   user: Yup.number().required('user id is required'),
 })
 
+export const orderSchema = Yup.object().shape({
+  user: Yup.number().required('User is required'), // Corrected from Yup.integer() to Yup.number()
+  status: Yup.string().required('Status is required'),
+  totalPrice: Yup.string().required('Total price is required'),
+  shippingType: Yup.string().required('Shipping type is required'),
+  shippingAddress: Yup.string().required('Shipping address is required'),
+  paymentType: Yup.string().required('Payment type is required'),
+  items: Yup.array()
+    .of(
+      Yup.object().shape({
+        size: Yup.string().required('Size is required'),
+        quantity: Yup.number()
+          .required('Quantity is required')
+          .min(1, 'Quantity must be at least 1'),
+        image: Yup.string().required('Image is required'),
+        product: Yup.number()
+          .required('Product is required')
+          .integer('Product must be an integer'),
+        color: Yup.string().nullable(), // Assuming color is optional
+      }),
+    )
+    .required('Items are required')
+    .min(1, 'At least one item is required'), // Ensures the array is not empty
+})
+
 export const validateData = async (data, schema) => {
   try {
     await schema.validate(data, { abortEarly: false })

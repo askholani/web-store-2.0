@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,9 +25,26 @@ Route::middleware('checkAuth')->group(function () {
 
   Route::prefix('/cart')->group(function () {
     Route::post('/store', [CartController::class, 'store']);
+    Route::post('/update', [CartController::class, 'update']);
     Route::get('/', [CartController::class, 'index']);
     Route::delete('/{id}', [CartController::class, 'destroy']);
   });
+
+  Route::prefix('/order')->group(function () {
+    Route::post('/store', [OrderController::class, 'store']);
+    Route::get('/status', [OrderController::class, 'getStatusOrder']);
+    Route::get('/', [OrderController::class, 'index']);
+    Route::delete('/{id}', [OrderController::class, 'destroy']);
+
+    Route::prefix('/payment')->group(function () {
+      Route::post('/charge', [PaymentController::class, 'createCharge']);
+    });
+
+    // Route::post('/update', [OrderController::class, 'update']);
+    // Route::get('/', [OrderController::class, 'index']);
+    // Route::delete('/{id}', [OrderController::class, 'destroy']);
+  });
+
 
 
   Route::get('/wishlist', [ProductController::class, 'getWishlist']);

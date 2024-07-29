@@ -9,13 +9,14 @@ const CartList = ({
   onHandleProductCount,
   onHandleCartDelete,
 }) => {
+  // console.log('data', data)
   const [showAlert, setShowAlert] = useState(false)
   const [selectedCart, setSelectedCart] = useState(null)
   const handleShowAlert = ({ id = 0 }) => {
     setSelectedCart(id)
     setShowAlert(!showAlert)
   }
-  console.log('selectedCart', selectedCart)
+  // console.log('selectedCart', selectedCart)
 
   const handleDeleteCart = () => {
     onHandleCartDelete({ id: selectedCart })
@@ -33,7 +34,7 @@ const CartList = ({
       {isLoading && <LoaderFetching />}
       {!isLoading && (
         <section className='flex flex-col gap-y-4'>
-          {data.cart.data.map((value) => (
+          {data.cart.map((value) => (
             <CartComp
               onHanldeShowAlert={handleShowAlert}
               key={value.id}

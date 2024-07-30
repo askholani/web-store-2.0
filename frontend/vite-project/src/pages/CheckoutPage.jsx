@@ -1,9 +1,12 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { lazy, useContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import ProductContext from '../context/ProductContext'
-import OrderList from '../components/OrderList'
-import AlertConfirmation from '../components/Alert/AlertConfirmation'
+
+const OrderList = lazy(() => import('../components/OrderList'))
+const AlertConfirmation = lazy(() =>
+  import('../components/Alert/AlertConfirmation'),
+)
 
 const CheckoutPage = () => {
   const navigate = useNavigate()
@@ -13,6 +16,7 @@ const CheckoutPage = () => {
   const { user } = useContext(AuthContext)
   const [order, setOrder] = useState(null)
   const [alertConfirmation, setAlertConfirmation] = useState(false)
+  const [paymentToken, setPaymentToken] = useState(null)
 
   const fetchOrderRef = useRef(fetchOrder)
 
@@ -28,9 +32,44 @@ const CheckoutPage = () => {
     handleOrder()
   }, [])
 
+  useEffect(() => {
+    // You can also change below url value to any script url you wish to load,
+    // for example this is snap.js for Sandbox Env (Note: remove `.sandbox` from url if you want to use production version)
+    const midtransScriptUrl = 'https://app.sandbox.midtrans.com/snap/snap.js'
+
+    let scriptTag = document.createElement('script')
+    scriptTag.src = midtransScriptUrl
+
+    // Optional: set script attribute, for example snap.js have data-client-key attribute
+    // (change the value according to your client-key)
+    const myMidtransClientKey = 'your-client-key-goes-here'
+    scriptTag.setAttribute('data-client-key', myMidtransClientKey)
+
+    document.body.appendChild(scriptTag)
+
+    return () => {
+      document.body.removeChild(scriptTag)
+    }
+  }, [])
+
   // console.log('order', order)
 
   const handlePayment = async () => {
+    if (paymentToken) {
+      console.log('paymentToken', paymentToken)
+      window.snap.pay(paymentToken, {
+        onSuccess: function (result) {
+          console.log('rest', result)
+        },
+        onPending: function (result) {
+          console.log('rest', result)
+        },
+        onError: function (result) {
+          console.log('rest', result)
+        },
+      })
+    }
+
     const items = order.items.map((item) => {
       return {
         id: item.id,
@@ -53,17 +92,21 @@ const CheckoutPage = () => {
     }
 
     const response = await fetchPaymentToken({ items, customer, transaction })
-    window.snap.pay(response.data, {
-      onSuccess: function (result) {
-        console.log('rest', result)
-      },
-      onPending: function (result) {
-        console.log('rest', result)
-      },
-      onError: function (result) {
-        console.log('rest', result)
-      },
-    })
+    console.log('response', response)
+    if (response.success) {
+      window.snap.pay(response.data, {
+        onSuccess: function (result) {
+          console.log('rest', result)
+        },
+        onPending: function (result) {
+          console.log('rest', result)
+        },
+        onError: function (result) {
+          console.log('rest', result)
+        },
+      })
+      setPaymentToken(response.data)
+    }
   }
 
   const handleCancelPayment = async () => {

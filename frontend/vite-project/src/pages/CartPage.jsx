@@ -1,14 +1,18 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { lazy, useContext, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import ProductContext from '../context/ProductContext'
-import CartList from '../components/Cart/CartList'
-import CartPrice from '../components/Cart/CartPrice'
+
+const CartList = lazy(() => import('../components/Cart/CartList'))
+const CartPrice = lazy(() => import('../components/Cart/CartPrice'))
 
 const CartPage = () => {
   const { prevUrl, user } = useContext(AuthContext)
-  const { fetchCarts, deleteCart } = useContext(ProductContext)
+  const { fetchCarts, deleteCart, getStatusOrder } = useContext(ProductContext)
+
+  const getStatusOrderRef = useRef(getStatusOrder)
   const fetchCartsRef = useRef(fetchCarts)
+
   const [carts, setCarts] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [cost, setCost] = useState({
@@ -16,11 +20,16 @@ const CartPage = () => {
     delivery: null,
     discount: null,
   })
+  const [statusOrder, setStatusOrder] = useState(null)
 
   useEffect(() => {
     let isMounted = true
     const handleFetchCart = async () => {
       const res = await fetchCartsRef.current()
+      const resStatus = await getStatusOrderRef.current({
+        id: user.id,
+        status: 'unpaid',
+      })
       if (res && isMounted) {
         setIsLoading(false)
         const costInitialData = res.cart.map((value) => ({
@@ -32,6 +41,11 @@ const CartPage = () => {
           image: value.image,
           size: value.size,
         }))
+
+        if (resStatus) {
+          setStatusOrder(resStatus.success)
+        }
+
         setCost((prev) => ({ ...prev, total: costInitialData }))
       }
       console.log('res', res)
@@ -95,7 +109,7 @@ const CartPage = () => {
         isLoading={isLoading}
         onHandleProductCount={handleProductCount}
       />
-      <CartPrice cost={cost} user={user} />
+      <CartPrice cost={cost} status={statusOrder} />
     </main>
   )
 }

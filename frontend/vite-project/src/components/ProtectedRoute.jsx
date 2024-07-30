@@ -1,16 +1,26 @@
 import PropTypes from 'prop-types'
 import { useContext } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
+import VerificationPage from '../pages/Auth/VerificationPage'
 
 const ProtectedRoute = ({ element: Component }) => {
+  const location = useLocation()
   const { user, isPending } = useContext(AuthContext)
+
+  console.log('location', location)
 
   if (isPending) {
     return <div>Loading...</div>
   }
 
-  return user ? Component : <Navigate to='/login' />
+  if (user) {
+    if (user.email_verified_at === null) {
+      return <VerificationPage />
+    }
+    return Component
+  }
+  return <Navigate to='/login' />
 }
 
 ProtectedRoute.propTypes = {

@@ -4,7 +4,7 @@ import ProductContext from '../../context/ProductContext'
 import AuthContext from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
-const CartPrice = ({ cost }) => {
+const CartPrice = ({ cost, status }) => {
   const navigate = useNavigate()
   const { user, previousUrl } = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
@@ -28,6 +28,11 @@ const CartPrice = ({ cost }) => {
 
   const handleCheckout = async () => {
     setIsLoading(true)
+
+    if (status) {
+      navigate('/checkout')
+      return
+    }
 
     if (!user) {
       const path = `cart`

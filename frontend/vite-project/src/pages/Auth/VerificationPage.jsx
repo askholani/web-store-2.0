@@ -1,10 +1,11 @@
-import { useContext, useEffect, useState } from 'react'
+import { lazy, useContext, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthContext from '../../context/AuthContext'
 import { useFormik } from 'formik'
 import * as yup from 'yup'
 import useSingleErrorMessage from '../../hook/useSingleMessages'
-import ResendCodeComp from '../../components/ResendCodeComp'
+
+const ResendCodeComp = lazy(() => import('../../components/ResendCodeComp'))
 
 const VerificationPage = () => {
   const { user, verify, resendCode } = useContext(AuthContext)
@@ -87,7 +88,7 @@ const VerificationPage = () => {
     <main className='px-2 py-4 flex flex-col gap-y-8'>
       <section className='flex justify-start'>
         <Link
-          to={'/profile'}
+          to={'/product'}
           className='w-12 h-12 border border-slate-400 rounded-full flex justify-center items-center'>
           <i className='fas fa-arrow-left text-lg'></i>
         </Link>

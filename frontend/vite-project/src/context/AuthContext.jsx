@@ -79,6 +79,8 @@ export const AuthProvider = ({ children }) => {
     return response
   }
 
+  // const updateProfile = async (data) => {}
+
   const getNewProduct = async (type = null, quantities = null) => {
     console.log('type', type)
     console.log('quantities', quantities)

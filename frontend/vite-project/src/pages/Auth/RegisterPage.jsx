@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
-import Register from '../../components/Register'
+import { lazy } from 'react'
+
+const Register = lazy(() => import('../../components/Register'))
 
 const RegisterPage = () => {
   return (

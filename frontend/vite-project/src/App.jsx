@@ -6,11 +6,13 @@ import LoaderPage from './pages/LoaderPage'
 import { lazy, Suspense, useEffect } from 'react'
 import ProductProviderRoutes from './routes/ProductProviderRoutes'
 import { useQuery } from './utils/helpers'
+import { ProductProvider } from './context/ProductContext'
 
 const LoginPage = lazy(() => import('./pages/Auth/LoginPage'))
 const VerificationPage = lazy(() => import('./pages/Auth/VerificationPage'))
 const ProfilePage = lazy(() => import('./pages/ProgilePage'))
 const RegisterPage = lazy(() => import('./pages/Auth/RegisterPage'))
+// const ExperimentPage2 = lazy(() => import('./pages/ExperimentPage2'))
 
 function App() {
   const query = useQuery()
@@ -43,7 +45,6 @@ function App() {
           />
 
           <Route path='/*' element={<ProductProviderRoutes />} />
-          {/* <Route path='/exp' element={<ExperimentPage />} /> */}
         </Routes>
       </Suspense>
     </>

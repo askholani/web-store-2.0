@@ -1,7 +1,8 @@
-import { useContext } from 'react'
+import { lazy, useContext } from 'react'
 import AuthContext from '../context/AuthContext'
 import { Link } from 'react-router-dom'
-import Profile from '../components/Profile'
+
+const Profile = lazy(() => import('../components/Profile'))
 
 const ProfilePage = () => {
   const { user, completeProfile } = useContext(AuthContext)

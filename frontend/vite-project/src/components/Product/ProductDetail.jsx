@@ -1,12 +1,13 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { lazy, useContext, useEffect, useMemo, useState } from 'react'
 import ProductContext from '../../context/ProductContext'
 import AuthContext from '../../context/AuthContext'
-import HeartButton from '../HeartButton'
-import ProductImages from './ProductImages'
 import { pageChange } from '../../utils/helpers'
-import AlertError from '../Alert/AlertError'
-import ToastMessage from '../Toas/ToastMessage'
+
+const HeartButton = lazy(() => import('../HeartButton'))
+const ProductImages = lazy(() => import('./ProductImages'))
+const AlertError = lazy(() => import('../Alert/AlertError'))
+const ToastMessage = lazy(() => import('../Toas/ToastMessage'))
 
 const sizes = ['s', 'm', 'l', 'xl', 'xxl']
 

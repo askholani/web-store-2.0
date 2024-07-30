@@ -29,7 +29,7 @@ class PaymentController extends Controller
         'order_id' => rand(),
         'gross_amount' => $request->transaction["amount"]
       ],
-      'item_details' => $request->items,
+      // 'item_details' => $request->items,
       'credit_card' => [
         'secure' => true
       ],

@@ -43,7 +43,7 @@ const CartComp = ({
         </div>
         <div
           className={`flex flex-col ${
-            type !== 'cart' ? 'w-full' : ' w-1/2'
+            type !== 'cart' ? 'w-2/3' : ' w-1/2'
           } text-start gap-y-1 justify-end py-1`}>
           <span className='line-clamp-1 font-semibold'>
             {value ? value.product.name : ''}
@@ -62,7 +62,6 @@ const CartComp = ({
               style={{ backgroundColor: value ? value.color : '' }}></span>
             <span>{value ? value.color : ''}</span>
           </div>
-
           <span className='line-clamp-1 font-semibold'>
             Rp {value ? value.product.price : ''}.000
           </span>

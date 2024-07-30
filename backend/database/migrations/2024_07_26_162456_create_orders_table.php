@@ -19,6 +19,7 @@ return new class extends Migration
       $table->string('shipping_address')->nullable();
       $table->string('shipping_type')->nullable();
       $table->string('total_price');
+      $table->string('token')->nullable();
       $table->timestamps();
 
       // $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');

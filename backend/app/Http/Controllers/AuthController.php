@@ -68,6 +68,7 @@ class AuthController extends Controller
         'password' => Hash::make($request->password),
         'verification_code' => $verificationCode,
         'verification_code_expired' => $timestamp,
+        'phone' => null
       ]);
 
       Mail::to($user->email)->send(new UserRegistered($verificationCode));
@@ -78,7 +79,7 @@ class AuthController extends Controller
     } catch (\Exception $e) {
       DB::rollBack();
       Log::error('User registration failed: ' . $e->getMessage());
-      return response()->json(['message' => 'User registration failed'], 500);
+      return response()->json(['message' => 'User registration failed' . $e->getMessage()], 500);
     }
   }
 

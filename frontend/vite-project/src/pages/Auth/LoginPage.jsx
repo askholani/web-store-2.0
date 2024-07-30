@@ -1,5 +1,7 @@
+import { lazy } from 'react'
 import { Link } from 'react-router-dom'
-import Login from '../../components/Login'
+
+const Login = lazy(() => import('../../components/Login'))
 
 const LoginPage = () => {
   return (

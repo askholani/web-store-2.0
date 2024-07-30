@@ -1,10 +1,11 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { lazy, useContext, useEffect, useRef, useState } from 'react'
 import AuthContext from '../context/AuthContext'
 import { Link, useNavigate } from 'react-router-dom'
-import WishListComp from '../components/WishListComp'
-import Sort from '../components/Sort'
 import ProductContext from '../context/ProductContext'
 import { pageChange, useQuery } from '../utils/helpers'
+
+const WishListComp = lazy(() => import('../components/WishListComp'))
+const Sort = lazy(() => import('../components/Sort'))
 
 const WishlistPage = () => {
   const [wishlist, setWishlist] = useState(null)
@@ -75,7 +76,7 @@ const WishlistPage = () => {
     <main className='px-2 py-4 flex flex-col gap-y-8'>
       <section className='flex items-center justify-center relative'>
         <Link
-          to={'/product'}
+          to={prevUrl}
           className='w-12 h-12 border border-slate-400 rounded-full flex justify-center items-center absolute left-0'>
           <i className='fas fa-arrow-left text-lg'></i>
         </Link>

@@ -4,7 +4,9 @@ import ProductContext from '../../context/ProductContext'
 import AuthContext from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
-const CartPrice = ({ cost, status }) => {
+const CartPrice = ({ cost, status, shippingType = 'economy' }) => {
+  // console.log('text', text)
+
   const navigate = useNavigate()
   const { user, previousUrl } = useContext(AuthContext)
   const [isLoading, setIsLoading] = useState(false)
@@ -20,7 +22,7 @@ const CartPrice = ({ cost, status }) => {
     curr: 'IDR',
   }).split(',')[0]
 
-  const total = costSub - 500 + 100
+  const total = costSub - 100 + 50
   const totalFormat = currencyFormat({
     number: total,
     curr: 'IDR',
@@ -30,7 +32,7 @@ const CartPrice = ({ cost, status }) => {
     setIsLoading(true)
 
     if (status) {
-      navigate('/checkout')
+      navigate('/product/cart/checkout')
       return
     }
 
@@ -56,16 +58,20 @@ const CartPrice = ({ cost, status }) => {
       user: user.id,
       status: 'unpaid',
       totalPrice: `${total}`,
-      shippingType: 'Pickup',
+      shippingType,
       shippingAddress: 'Pickup',
       paymentType: 'Cash on Delivery',
+      discount: '100',
+      shippingCost: '50',
     }
+    // console.log('data', data)
+    // return
 
     const res = await sendToOrder(data)
-    console.log('res', res)
+    // console.log('res', res)
     if (res) {
       setIsLoading(false)
-      navigate('/checkout')
+      navigate('/product/cart/checkout')
     }
   }
 
@@ -77,12 +83,12 @@ const CartPrice = ({ cost, status }) => {
           <span>{subFormat}.000</span>
         </div>
         <div className='flex justify-between'>
-          <span>Delivery Free</span>
-          <span>Rp 100.000</span>
+          <span>Delivery Fee</span>
+          <span>Rp 50.000</span>
         </div>
         <div className='flex justify-between'>
           <span>Discount</span>
-          <span>Rp 500.000</span>
+          <span>Rp 100.000</span>
         </div>
       </div>
       <div className='flex justify-between text-sm'>
@@ -92,7 +98,7 @@ const CartPrice = ({ cost, status }) => {
       <button
         onClick={handleCheckout}
         disabled={isLoading}
-        className='btn btn-sm h-[3rem] rounded-3xl py-2 font-semibold bg-slate-500 hover:bg-slate-600 text-slate-50 w-full text-lg'>
+        className='btn btn-sm h-[3rem] rounded-3xl py-2 font-semibold bg-slate-700 hover:bg-slate-800 text-slate-50 w-full text-lg'>
         Proceed to Checkout
       </button>
     </div>

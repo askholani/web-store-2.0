@@ -6,7 +6,7 @@ const CartComp = ({
   onHanldeShowAlert,
   type = 'cart',
 }) => {
-  console.log('value', value)
+  // console.log('value', value)
   const [data, setData] = useState({
     count: value ? value.count : null,
     id: value ? value.id : null,

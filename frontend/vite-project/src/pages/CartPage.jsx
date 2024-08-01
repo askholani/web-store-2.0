@@ -1,62 +1,61 @@
 import { lazy, useContext, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLoaderData } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import ProductContext from '../context/ProductContext'
+import { useQuery } from '../utils/helpers'
 
 const CartList = lazy(() => import('../components/Cart/CartList'))
 const CartPrice = lazy(() => import('../components/Cart/CartPrice'))
 
 const CartPage = () => {
-  const { prevUrl, user } = useContext(AuthContext)
-  const { fetchCarts, deleteCart, getStatusOrder } = useContext(ProductContext)
+  const data = useLoaderData()
 
+  const { prevUrl } = useContext(AuthContext)
+  const { deleteCart, getStatusOrder } = useContext(ProductContext)
   const getStatusOrderRef = useRef(getStatusOrder)
-  const fetchCartsRef = useRef(fetchCarts)
+  const query = useQuery()
+  const shipping = query.get('shipping')
 
-  const [carts, setCarts] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [cost, setCost] = useState({
-    total: [],
-    delivery: null,
-    discount: null,
+  const [carts, setCarts] = useState(() => {
+    if (data.success) {
+      return data
+    }
   })
+
+  const [cost, setCost] = useState(() => {
+    if (data.success) {
+      const costInitialData = data.cart.map((value) => ({
+        count: value.count,
+        price: value.product.price,
+        id: value.id,
+        color: value.color,
+        product: value.product.id,
+        image: value.image,
+        size: value.size,
+      }))
+      return {
+        total: costInitialData,
+        delivery: null,
+        discount: null,
+      }
+    }
+  })
+
   const [statusOrder, setStatusOrder] = useState(null)
 
   useEffect(() => {
-    let isMounted = true
     const handleFetchCart = async () => {
-      const res = await fetchCartsRef.current()
-      const resStatus = await getStatusOrderRef.current({
-        id: user.id,
-        status: 'unpaid',
-      })
-      if (res && isMounted) {
-        setIsLoading(false)
-        const costInitialData = res.cart.map((value) => ({
-          count: value.count,
-          price: value.product.price,
-          id: value.id,
-          color: value.color,
-          product: value.product.id,
-          image: value.image,
-          size: value.size,
-        }))
-
-        if (resStatus) {
-          setStatusOrder(resStatus.success)
-        }
-
-        setCost((prev) => ({ ...prev, total: costInitialData }))
+      try {
+        const resStatus = await getStatusOrderRef.current({
+          status: 'unpaid',
+        })
+        setStatusOrder(resStatus.success)
+      } catch (error) {
+        console.error('Error fetching cart or status:', error)
       }
-      console.log('res', res)
-      setCarts(res)
     }
 
     handleFetchCart()
-
-    return () => {
-      isMounted = false
-    }
   }, [])
 
   const handleProductCount = (data) => {
@@ -103,13 +102,33 @@ const CartPage = () => {
         </Link>
         <span className='font-semibold text-lg'>My Cart</span>
       </section>
+      <section className='flex text-start'>
+        <div className='flex flex-col gap-y-2'>
+          <span className='font-semibold text-lg'>Choose Shipping Type</span>
+          <div className='flex gap-x-2 items-center'>
+            <i className='fas fa-cube text-2xl'></i>
+            <span className='font-semibold text-lg capitalize'>
+              {shipping ? shipping : 'economy'}
+            </span>
+          </div>
+          <div className='flex gap-x-8 pb-3 border-b border-b-slate-300'>
+            <span className='opacity-70 line-clamp-2'>
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut quod
+            </span>
+            <Link
+              to={'shipping-type'}
+              className='border px-1 btn btn-sm font-semibold bg-white hover:bg-white border-slate-400 rounded-md cursor-pointer'>
+              CHANGE
+            </Link>
+          </div>
+        </div>
+      </section>
       <CartList
         onHandleCartDelete={handleDeleteCart}
         data={carts}
-        isLoading={isLoading}
         onHandleProductCount={handleProductCount}
       />
-      <CartPrice cost={cost} status={statusOrder} />
+      <CartPrice cost={cost} status={statusOrder} shippingType={shipping} />
     </main>
   )
 }

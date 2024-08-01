@@ -35,6 +35,7 @@ Route::middleware('checkAuth')->group(function () {
     Route::get('/status', [OrderController::class, 'getStatusOrder']);
     Route::get('/', [OrderController::class, 'index']);
     Route::delete('/{id}', [OrderController::class, 'destroy']);
+    Route::get('/token', [OrderController::class, 'token']);
 
     Route::prefix('/payment')->group(function () {
       Route::post('/charge', [PaymentController::class, 'createCharge']);

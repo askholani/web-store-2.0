@@ -16,6 +16,10 @@ class Order extends Model
     'shipping_address',
     'shipping_type',
     'payment_type',
+    'token',
+    'discount',
+    'shipping_cost',
+    'tracker_id'
   ];
 
   public function items()

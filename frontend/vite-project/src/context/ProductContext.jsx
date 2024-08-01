@@ -166,10 +166,10 @@ export const ProductProvider = ({ children }) => {
     }
   }
 
-  const getStatusOrder = async ({ id, status }) => {
+  const getStatusOrder = async ({ status }) => {
     try {
       const res = await axiosInstance.get(`/order/status`, {
-        params: { user: id, status },
+        params: { status },
       })
       return { success: true, data: res.data }
     } catch (err) {
@@ -182,7 +182,6 @@ export const ProductProvider = ({ children }) => {
   }
 
   const fetchPaymentToken = async ({ items, customer, transaction }) => {
-    // console.log('transaction', transaction)
     try {
       const res = await axiosInstance.post('/order/payment/charge', {
         items,
@@ -197,7 +196,6 @@ export const ProductProvider = ({ children }) => {
 
   const deleteOrder = async (id) => {
     try {
-      // console.log(id)
       const res = await axiosInstance.delete(`/order/${id}`)
       return { success: true, data: res.data }
     } catch (error) {

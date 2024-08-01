@@ -128,6 +128,8 @@ export const orderSchema = Yup.object().shape({
   shippingType: Yup.string().required('Shipping type is required'),
   shippingAddress: Yup.string().required('Shipping address is required'),
   paymentType: Yup.string().required('Payment type is required'),
+  discount: Yup.string().required('Discount is required'),
+  shippingCost: Yup.string().required('Shipping cost is required'),
   items: Yup.array()
     .of(
       Yup.object().shape({
@@ -163,18 +165,6 @@ export const currencyFormat = ({ number, curr = 'IDR' }) => {
     style: 'currency',
     currency: curr,
   }).format(number)
-}
-
-export const showPosition = async (position) => {
-  console.log('position', position)
-  // console.log('hai')
-  return position
-
-  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`
-  const res = await fetch(url)
-  // const result = await res.json()
-  return res.json()
-  // console.log('result', result)
 }
 
 export const showErrorPosition = (error) => {

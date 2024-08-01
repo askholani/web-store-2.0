@@ -49,6 +49,8 @@ class OrderController extends Controller
       'shippingAddress' => 'required|string|max:255',
       'shippingType' => 'required|string|max:255',
       'paymentType' => 'required|string|max:255',
+      'discount' => 'required|string|max:255',
+      'shippingCost' => 'required|string|max:255',
     ]);
 
     if ($validator->fails()) {
@@ -70,6 +72,8 @@ class OrderController extends Controller
           'shipping_address' => $request->input('shippingAddress'),
           'shipping_type' => $request->input('shippingType'),
           'payment_type' => $request->input('paymentType'),
+          'shipping_cost' => $request->input('shippingCost'),
+          'discount' => $request->input('discount'),
         ]
       );
 
@@ -98,8 +102,13 @@ class OrderController extends Controller
 
   public function getStatusOrder(Request $request)
   {
+    $user = Auth::user();
+
+    if (!$user) {
+      return response()->json(['message' => 'User not authenticated'], 401);
+    }
+
     $validator = Validator::make($request->query(), [
-      'user' => 'required|integer',
       'status' => 'required|string|max:255',
     ]);
 
@@ -108,7 +117,7 @@ class OrderController extends Controller
     }
 
     // Fetch the order for the authenticated user based on id and status
-    $order = Order::where('user_id', $request->query('user'))
+    $order = Order::where('user_id', $user->id)
       ->where('status', $request->query('status'))
       ->first();
 
@@ -121,12 +130,6 @@ class OrderController extends Controller
 
   public function destroy(Request $request)
   {
-    // $validated = $request->validate([
-    //   'id' => 'required|integer',
-    // ]);
-
-    // return response()->json($request->id);
-
     try {
       DB::beginTransaction();
       OrderItems::where('order_id', $request->id)->delete();
@@ -143,5 +146,10 @@ class OrderController extends Controller
       DB::rollBack();
       return response()->json(['message' => 'An error occurred while deleting the product', 'error' => $e->getMessage()], 500);
     }
+  }
+
+  public function token(Request $request)
+  {
+    $user = Auth::user();
   }
 }

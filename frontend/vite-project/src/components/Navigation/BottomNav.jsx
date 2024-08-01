@@ -9,6 +9,7 @@ const BottomNav = () => {
   const { user } = useContext(AuthContext)
   const getStatusOrderRef = useRef(getStatusOrder)
   const [statusOrder, setStatusOrder] = useState(null)
+  console.log('statusOrder', statusOrder)
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -29,7 +30,7 @@ const BottomNav = () => {
   }, [user])
 
   const { previousUrl } = useContext(AuthContext)
-  console.log('statusOrder', statusOrder)
+  // console.log('statusOrder', statusOrder)
 
   const handlePageChange = ({ path }) => {
     const page = pageChange({ pathTo: path, location: location })
@@ -38,7 +39,7 @@ const BottomNav = () => {
     navigate(page.nextPath)
   }
 
-  console.log('location', location)
+  // console.log('location', location)
 
   return (
     <div className='btm-nav bg-slate-700 rounded-full mx-auto w-[90%]'>
@@ -55,7 +56,9 @@ const BottomNav = () => {
       <button
         disabled={statusOrder === null ? true : false}
         onClick={() =>
-          handlePageChange({ path: `${statusOrder ? 'checkout' : 'cart'}` })
+          handlePageChange({
+            path: `${statusOrder ? 'product/cart/checkout' : 'product/cart'}`,
+          })
         }>
         <div
           className={`rounded-full ${
@@ -66,7 +69,7 @@ const BottomNav = () => {
           <i className='fas fa-shopping-bag text-xl'></i>
         </div>
       </button>
-      <div onClick={() => handlePageChange({ path: 'wishlist' })}>
+      <div onClick={() => handlePageChange({ path: 'product/wishlist' })}>
         <div
           className={`rounded-full ${
             location.pathname === '/wishlist'

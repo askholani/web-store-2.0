@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Midtrans\Config;
 use Midtrans\Snap;
 
@@ -22,27 +26,49 @@ class PaymentController extends Controller
 
   public function createCharge(Request $request)
   {
-    // return response()->json($request->transaction);
+    $validator = Validator::make($request->all(), [
+      'orderId' => 'required|integer',
+      'transaction.amount' => 'required|numeric',
+      'customer.name' => 'required|string',
+      'customer.email' => 'required|email',
+      'customer.phone' => 'required|string'
+    ]);
+
+    if ($validator->fails()) {
+      return response()->json(['errors' => $validator->errors()], 422);
+    }
 
     $params = [
       'transaction_details' => [
         'order_id' => rand(),
-        'gross_amount' => $request->transaction["amount"]
+        'gross_amount' => $request->input('transaction.amount')
       ],
-      // 'item_details' => $request->items,
       'credit_card' => [
         'secure' => true
       ],
       'customer_details' => [
-        'first_name' => $request->customer["name"],
-        'email' => $request->customer["email"],
-        'phone' => $request->customer["phone"]
+        'first_name' => $request->input('customer.name'),
+        'email' => $request->input('customer.email'),
+        'phone' => $request->input('customer.phone')
       ]
     ];
 
-    $snapToken = Snap::getSnapToken($params);
-    return response()->json($snapToken);
+    try {
+      DB::beginTransaction();
+      $order = Order::findOrFail($request->input('orderId'));
+      $snapToken = Snap::getSnapToken($params);
+      $order->update([
+        'token' => $snapToken
+      ]);
+      DB::commit();
+      return response()->json(['token' => $snapToken]);
+    } catch (\Exception $e) {
+      DB::rollBack();
+      Log::error('Failed to place order: ' . $e->getMessage());
+      return response()->json(['message' => 'Failed to place order', 'error' => $e->getMessage()], 500);
+    }
   }
+
   public function index()
   {
     //

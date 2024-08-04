@@ -12,6 +12,7 @@ import {
   getOrderToken,
   combinedLoader,
 } from './utils/helperProduct'
+import { fetchProvincies as provLoader } from './utils/helpersThirdParties'
 import { DataComponentCoba } from './components/DataComponentCoba'
 import { NavigationComponentCoba } from './components/NavigationComponentCoba'
 
@@ -87,7 +88,11 @@ const router = createBrowserRouter([
         loader: cartLoader,
       },
       { path: 'cart/shipping-type', element: <ShippingType /> },
-      { path: 'cart/shipping-address', element: <ShippingAddress /> },
+      {
+        path: 'cart/checkout/shipping-address',
+        element: <ShippingAddress />,
+        loader: provLoader,
+      },
       {
         path: 'cart/checkout',
         element: <CheckoutPage />,

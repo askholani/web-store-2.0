@@ -1,5 +1,5 @@
 import { lazy, useContext, useEffect, useState } from 'react'
-import { useLoaderData, useNavigate } from 'react-router-dom'
+import { Link, useLoaderData, useNavigate } from 'react-router-dom'
 import AuthContext from '../context/AuthContext'
 import ProductContext from '../context/ProductContext'
 
@@ -132,9 +132,11 @@ const CheckoutPage = () => {
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Aut
                 quod
               </span>
-              <button className='border px-1 btn btn-sm font-semibold bg-white hover:bg-white border-slate-400 rounded-md'>
+              <Link
+                to={'shipping-address'}
+                className='border px-1 btn btn-sm font-semibold bg-white hover:bg-white border-slate-400 rounded-md'>
                 CHANGE
-              </button>
+              </Link>
             </div>
           </div>
 

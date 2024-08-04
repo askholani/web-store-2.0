@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ThirdPartiesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,11 +41,9 @@ Route::middleware('checkAuth')->group(function () {
     Route::prefix('/payment')->group(function () {
       Route::post('/charge', [PaymentController::class, 'createCharge']);
     });
-
-    // Route::post('/update', [OrderController::class, 'update']);
-    // Route::get('/', [OrderController::class, 'index']);
-    // Route::delete('/{id}', [OrderController::class, 'destroy']);
   });
+
+  Route::get('/third-parties/indonesia-region', [ThirdPartiesController::class, 'indonesiaRegion']);
 
 
 
